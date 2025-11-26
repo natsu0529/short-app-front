@@ -14,16 +14,13 @@ class ShortTextApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
-        colorScheme: const ColorScheme(
-          brightness: Brightness.light,
+        colorScheme: const ColorScheme.light(
           primary: Colors.black,
           onPrimary: Colors.white,
           secondary: Colors.black,
           onSecondary: Colors.white,
           error: Colors.black,
           onError: Colors.white,
-          background: Colors.white,
-          onBackground: Colors.black,
           surface: Colors.white,
           onSurface: Colors.black,
         ),
@@ -33,7 +30,7 @@ class ShortTextApp extends StatelessWidget {
           elevation: 0,
         ),
         dividerColor: Colors.black,
-        tabBarTheme: const TabBarTheme(
+        tabBarTheme: const TabBarThemeData(
           labelColor: Colors.black,
           unselectedLabelColor: Colors.black,
           indicatorColor: Colors.black,
@@ -45,6 +42,50 @@ class ShortTextApp extends StatelessWidget {
         ),
       ),
       home: const HomeShell(),
+    );
+  }
+}
+
+class _MonoText {
+  static const subtitle = TextStyle(
+    fontSize: 13,
+    color: Colors.black,
+  );
+  static const body = TextStyle(
+    fontSize: 14,
+    height: 1.5,
+    color: Colors.black,
+  );
+  static const label = TextStyle(
+    fontSize: 12,
+    color: Colors.black,
+  );
+}
+
+class MonoCard extends StatelessWidget {
+  const MonoCard({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(16),
+    this.borderWidth = 1.4,
+    this.radius = 16,
+  });
+
+  final Widget child;
+  final EdgeInsets padding;
+  final double borderWidth;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: Colors.black, width: borderWidth),
+      ),
+      child: child,
     );
   }
 }
@@ -85,14 +126,17 @@ class _HomeShellState extends State<HomeShell> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.view_agenda_outlined),
+            activeIcon: Icon(Icons.view_agenda),
             label: 'タイムライン',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart_outlined),
+            icon: Icon(Icons.leaderboard_outlined),
+            activeIcon: Icon(Icons.leaderboard),
             label: 'ランキング',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
             label: 'プロフィール',
           ),
         ],
@@ -101,39 +145,194 @@ class _HomeShellState extends State<HomeShell> {
   }
 }
 
-class TimelinePage extends StatelessWidget {
+class TimelinePage extends StatefulWidget {
   const TimelinePage({super.key});
+
+  @override
+  State<TimelinePage> createState() => _TimelinePageState();
+}
+
+class _TimelinePageState extends State<TimelinePage> {
+  final TextEditingController _composerController = TextEditingController();
+
+  @override
+  void dispose() {
+    _composerController.dispose();
+    super.dispose();
+  }
+
+  void _openComposer() {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: Colors.black, width: 1.4),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '新規投稿',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _composerController,
+                  maxLines: 5,
+                  minLines: 3,
+                  decoration: const InputDecoration(
+                    hintText: 'テキストを入力',
+                    hintStyle: TextStyle(color: Colors.black54),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black, width: 1.2),
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black, width: 1.4),
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                  style: const TextStyle(color: Colors.black),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        side: const BorderSide(color: Colors.black, width: 1.2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                      ),
+                      onPressed: () {
+                        _composerController.clear();
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text(
+                        'キャンセル',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 12,
+                        ),
+                      ),
+                      onPressed: () {
+                        final text = _composerController.text.trim();
+                        Navigator.of(context).pop();
+                        if (text.isNotEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('投稿しました: $text'),
+                              backgroundColor: Colors.black,
+                            ),
+                          );
+                          _composerController.clear();
+                        }
+                      },
+                      child: const Text(
+                        '投稿',
+                        style: TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          const _PageHeader(
-            title: 'タイムライン',
-            subtitle: '最新 / フォロー中 / トレンドをテキストだけで追う',
-          ),
-          const SizedBox(height: 12),
-          const _MonochromeTabBar(
-            tabs: [
-              Tab(text: '最新'),
-              Tab(text: 'フォロー中'),
-              Tab(text: 'トレンド'),
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _MonochromeTabBar(
+                tabs: [
+                  Tab(text: '最新'),
+                  Tab(text: 'フォロー中'),
+                  Tab(text: 'トレンド'),
+                ],
+              ),
+              SizedBox(height: 12),
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    _PostList(posts: latestPosts),
+                    _PostList(posts: followingPosts),
+                    _PostList(posts: trendingPosts),
+                  ],
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: TabBarView(
-              children: [
-                _PostList(posts: latestPosts),
-                _PostList(posts: followingPosts),
-                _PostList(posts: trendingPosts),
-              ],
-            ),
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: _ComposeFab(onTap: _openComposer),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ComposeFab extends StatelessWidget {
+  const _ComposeFab({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.black, width: 1.4),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.add, color: Colors.black, size: 20),
+          ],
+        ),
       ),
     );
   }
@@ -144,17 +343,12 @@ class RankingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
+    return const DefaultTabController(
       length: 4,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _PageHeader(
-            title: 'ランキング',
-            subtitle: '投稿・総合いいね・レベル・フォロワー',
-          ),
-          const SizedBox(height: 12),
-          const _MonochromeTabBar(
+          _MonochromeTabBar(
             tabs: [
               Tab(text: '人気投稿'),
               Tab(text: '総合いいね'),
@@ -162,7 +356,7 @@ class RankingPage extends StatelessWidget {
               Tab(text: 'フォロワー'),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Expanded(
             child: TabBarView(
               children: [
@@ -184,49 +378,50 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _ProfileHeader(profile: sampleProfile),
-          const SizedBox(height: 16),
-          _ProfileStats(profile: sampleProfile),
-          const SizedBox(height: 16),
-          _LikedPostsSection(posts: likedPosts),
-        ],
-      ),
-    );
+    return const _ProfileScreenBody();
   }
 }
 
-class _PageHeader extends StatelessWidget {
-  const _PageHeader({required this.title, required this.subtitle});
+class _ProfileScreenBody extends StatefulWidget {
+  const _ProfileScreenBody();
 
-  final String title;
-  final String subtitle;
+  @override
+  State<_ProfileScreenBody> createState() => _ProfileScreenBodyState();
+}
+
+class _ProfileScreenBodyState extends State<_ProfileScreenBody> {
+  final ScrollController _likedScrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _likedScrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollLikedToTop() {
+    _likedScrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            style: const TextStyle(
-              fontSize: 13,
-              color: Colors.black,
+          const _ProfileHeader(profile: sampleProfile),
+          const SizedBox(height: 16),
+          const _ProfileStats(profile: sampleProfile),
+          const SizedBox(height: 16),
+          Expanded(
+            child: _LikedPostsSection(
+              posts: likedPosts,
+              controller: _likedScrollController,
+              onHeaderTap: _scrollLikedToTop,
             ),
           ),
         ],
@@ -242,27 +437,19 @@ class _MonochromeTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.black, width: 1.4),
-          top: BorderSide(color: Colors.black, width: 1.4),
-        ),
+    return TabBar(
+      tabs: tabs,
+      indicatorSize: TabBarIndicatorSize.tab,
+      indicatorColor: Colors.black,
+      labelStyle: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
       ),
-      child: TabBar(
-        tabs: tabs,
-        indicatorSize: TabBarIndicatorSize.tab,
-        indicatorColor: Colors.black,
-        labelStyle: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w700,
-        ),
-        unselectedLabelStyle: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-        ),
-        splashBorderRadius: BorderRadius.circular(0),
+      unselectedLabelStyle: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
       ),
+      splashBorderRadius: BorderRadius.circular(0),
     );
   }
 }
@@ -290,108 +477,43 @@ class _PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.black, width: 1.4),
-      ),
+    return MonoCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            '${post.user} ・ ${post.time}',
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: Colors.black,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            post.body,
+            style: _MonoText.body,
+          ),
+          const SizedBox(height: 12),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _Avatar(initials: post.userInitials),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              post.user,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '${post.handle} ・ ${post.time}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.black, width: 1.2),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            'Lv.${post.level}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      post.body,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        height: 1.5,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.favorite_border, size: 18),
-                            const SizedBox(width: 6),
-                            Text(
-                              '${post.likes} いいね',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Text(
-                          post.source,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+              Row(
+                children: [
+                  const Icon(Icons.favorite_border, size: 18),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${post.likes} いいね',
+                    style: _MonoText.subtitle,
+                  ),
+                ],
+              ),
+              Text(
+                post.source,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
                 ),
               ),
             ],
@@ -413,33 +535,11 @@ class _RankingList extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       itemBuilder: (context, index) {
         final entry = entries[index];
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.black, width: 1.4),
-          ),
+        return MonoCard(
+          radius: 14,
           child: Row(
             children: [
-              Container(
-                width: 36,
-                height: 36,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.black, width: 1.2),
-                ),
-                child: Text(
-                  '#${entry.position}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
+              _RankBadge(position: entry.position),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -456,10 +556,7 @@ class _RankingList extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       entry.subtitle,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black,
-                      ),
+                      style: _MonoText.label,
                     ),
                   ],
                 ),
@@ -482,101 +579,268 @@ class _RankingList extends StatelessWidget {
   }
 }
 
+class _RankBadge extends StatelessWidget {
+  const _RankBadge({required this.position});
+
+  final int position;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 36,
+      height: 36,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black, width: 1.2),
+      ),
+      child: Text(
+        '#$position',
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w800,
+          color: Colors.black,
+        ),
+      ),
+    );
+  }
+}
+
 class _ProfileHeader extends StatelessWidget {
   const _ProfileHeader({required this.profile});
 
   final Profile profile;
 
+  void _openEditDialog(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => _ProfileEditDialog(profile: profile),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.black, width: 1.4),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        MonoCard(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Avatar(initials: profile.initials, size: 52),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              profile.name,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              profile.handle,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                        OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.black,
-                            side: const BorderSide(color: Colors.black, width: 1.2),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 10,
-                            ),
-                          ),
-                          onPressed: () {},
-                          child: const Text(
-                            'Googleでログイン',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      profile.bio,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        height: 1.5,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      profile.url,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        decoration: TextDecoration.underline,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
+              Text(
+                profile.name,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                profile.bio,
+                style: _MonoText.body,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                profile.url,
+                style: const TextStyle(
+                  fontSize: 13,
+                  decoration: TextDecoration.underline,
+                  color: Colors.black,
                 ),
               ),
             ],
           ),
-        ],
+        ),
+        Positioned(
+          right: 12,
+          bottom: -15,
+          child: GestureDetector(
+            onTap: () => _openEditDialog(context),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.black, width: 1.4),
+              ),
+              child: const Icon(Icons.edit, size: 18, color: Colors.black),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProfileEditDialog extends StatefulWidget {
+  const _ProfileEditDialog({required this.profile});
+
+  final Profile profile;
+
+  @override
+  State<_ProfileEditDialog> createState() => _ProfileEditDialogState();
+}
+
+class _ProfileEditDialogState extends State<_ProfileEditDialog> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _bioController;
+  late final TextEditingController _urlController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.profile.name);
+    _bioController = TextEditingController(text: widget.profile.bio);
+    _urlController = TextEditingController(text: widget.profile.url);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _bioController.dispose();
+    _urlController.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('プロフィールを保存しました'),
+        backgroundColor: Colors.black,
       ),
+    );
+  }
+
+  void _logout() {
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('ログアウトしました'),
+        backgroundColor: Colors.black,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Colors.black, width: 1.4),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'プロフィール編集',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 20),
+            _buildTextField('名前', _nameController),
+            const SizedBox(height: 12),
+            _buildTextField('Bio', _bioController, maxLines: 3),
+            const SizedBox(height: 12),
+            _buildTextField('URL', _urlController),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.black,
+                      side: const BorderSide(color: Colors.black, width: 1.2),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text(
+                      'キャンセル',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    onPressed: _save,
+                    child: const Text(
+                      '保存',
+                      style: TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                onPressed: _logout,
+                child: const Text(
+                  'ログアウト',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    int maxLines = 1,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          maxLines: maxLines,
+          decoration: const InputDecoration(
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.black, width: 1.2),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.black, width: 1.4),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+          style: const TextStyle(color: Colors.black, fontSize: 14),
+        ),
+      ],
     );
   }
 }
@@ -591,13 +855,7 @@ class _ProfileStats extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.black, width: 1.4),
-          ),
+        MonoCard(
           child: Column(
             children: [
               Row(
@@ -658,61 +916,45 @@ class _StatBlock extends StatelessWidget {
 }
 
 class _LikedPostsSection extends StatelessWidget {
-  const _LikedPostsSection({required this.posts});
+  const _LikedPostsSection({
+    required this.posts,
+    required this.controller,
+    required this.onHeaderTap,
+  });
 
   final List<Post> posts;
+  final ScrollController controller;
+  final VoidCallback onHeaderTap;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'いいねした投稿',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            color: Colors.black,
+        InkWell(
+          onTap: onHeaderTap,
+          child: const Padding(
+            padding: EdgeInsets.symmetric(vertical: 4),
+            child: Text(
+              'いいねした投稿',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: Colors.black,
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 12),
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) => _PostCard(post: posts[index]),
-          separatorBuilder: (context, index) => const SizedBox(height: 10),
-          itemCount: posts.length,
+        Expanded(
+          child: ListView.separated(
+            controller: controller,
+            itemBuilder: (context, index) => _PostCard(post: posts[index]),
+            separatorBuilder: (context, index) => const SizedBox(height: 10),
+            itemCount: posts.length,
+          ),
         ),
       ],
-    );
-  }
-}
-
-class _Avatar extends StatelessWidget {
-  const _Avatar({required this.initials, this.size = 44});
-
-  final String initials;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.black, width: 1.4),
-      ),
-      child: Text(
-        initials,
-        style: TextStyle(
-          fontSize: size * 0.38,
-          fontWeight: FontWeight.w800,
-          color: Colors.black,
-        ),
-      ),
     );
   }
 }
