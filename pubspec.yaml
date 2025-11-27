@@ -30,6 +30,9 @@ dependencies:
   # --- 認証 (GCP OAuth) ---
   google_sign_in: ^6.2.2
 
+  # --- 環境変数 ---
+  flutter_dotenv: ^5.2.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -44,3 +47,6 @@ flutter_launcher_icons:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    - .env
+    - assets/icon/

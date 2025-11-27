@@ -2,19 +2,30 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiConfig {
   static const _port = '8000';
-  static const _pcIpFromDefine = String.fromEnvironment('API_PC_IP');
-  static const _fallbackPcIp = '192.168.1.15';
 
-  static String get _pcIp =>
-      _pcIpFromDefine.isNotEmpty ? _pcIpFromDefine : _fallbackPcIp;
+  static String get _env => dotenv.env['ENV'] ?? 'local';
+  static String get _localApiUrl =>
+      dotenv.env['LOCAL_API_URL'] ?? 'http://localhost:$_port';
+  static String get _prodApiUrl =>
+      dotenv.env['PROD_API_URL'] ?? 'https://your-api.example.com';
+  static String get _pcIp => dotenv.env['LOCAL_PC_IP'] ?? '192.168.1.15';
 
-  /// Resolves the API base URL depending on the platform/emulator/physical device.
+  static bool get isProduction => _env == 'production';
+
+  /// Resolves the API base URL depending on the environment and platform.
   static Future<String> resolveBaseUrl() async {
+    // Production environment - always use production URL
+    if (isProduction) {
+      return _prodApiUrl;
+    }
+
+    // Local development
     if (kIsWeb) {
-      return 'http://localhost:$_port';
+      return _localApiUrl;
     }
 
     if (Platform.isAndroid) {
