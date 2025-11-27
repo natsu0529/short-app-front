@@ -9,11 +9,15 @@ class AuthService {
 
   User? _currentUser;
 
+  // Web/Backend Client ID from Google Cloud Console
+  static const String _webClientId = '989459986996-npnc77tg2hnampsihsi2nurmjqtcjkia.apps.googleusercontent.com';
+
   AuthService({
     GoogleSignIn? googleSignIn,
     required ApiClient apiClient,
   })  : _googleSignIn = googleSignIn ?? GoogleSignIn(
           scopes: ['email', 'profile'],
+          serverClientId: _webClientId,
         ),
         _apiClient = apiClient;
 
@@ -22,12 +26,28 @@ class AuthService {
 
   Future<User?> signInWithGoogle() async {
     try {
+      if (kDebugMode) {
+        print('Starting Google Sign-In...');
+      }
       final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return null;
+      if (kDebugMode) {
+        print('Google Sign-In result: $googleUser');
+      }
+      if (googleUser == null) {
+        if (kDebugMode) print('Google user is null');
+        return null;
+      }
 
       final googleAuth = await googleUser.authentication;
       final idToken = googleAuth.idToken;
-      if (idToken == null) return null;
+      if (kDebugMode) {
+        print('ID Token: ${idToken != null ? "exists (${idToken.substring(0, 20)}...)" : "NULL"}');
+        print('Access Token: ${googleAuth.accessToken != null ? "exists" : "NULL"}');
+      }
+      if (idToken == null) {
+        if (kDebugMode) print('ID Token is null, returning null');
+        return null;
+      }
 
       // Send Google ID token to backend for verification
       final apiUser = await _authenticateWithBackend(
@@ -38,9 +58,10 @@ class AuthService {
 
       _currentUser = apiUser;
       return apiUser;
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (kDebugMode) {
         print('Error signing in with Google: $e');
+        print('Stack trace: $stackTrace');
       }
       rethrow;
     }

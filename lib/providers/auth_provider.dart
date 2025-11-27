@@ -59,11 +59,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> signInWithGoogle() async {
+    print('AuthNotifier: signInWithGoogle called');
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final user = await _authService.signInWithGoogle();
+      print('AuthNotifier: signInWithGoogle success, user: $user');
       state = state.copyWith(user: user, isLoading: false);
     } catch (e) {
+      print('AuthNotifier: signInWithGoogle error: $e');
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
