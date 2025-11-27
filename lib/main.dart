@@ -466,12 +466,140 @@ class ProfileDetailPage extends StatelessWidget {
               showEdit: false,
             ),
             const SizedBox(height: 16),
-            _ProfileStats(profile: profile),
+            _ProfileStats(profile: profile, isOwnProfile: false),
           ],
         ),
       ),
     );
   }
+}
+
+class FollowListPage extends StatelessWidget {
+  const FollowListPage({super.key, this.initialTab = 0});
+
+  final int initialTab;
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2,
+      initialIndex: initialTab,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            AppLocalizations.of(context)!.navProfile,
+            style: const TextStyle(color: Colors.black),
+          ),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 0,
+          bottom: TabBar(
+            tabs: [
+              Tab(text: AppLocalizations.of(context)!.following),
+              Tab(text: AppLocalizations.of(context)!.followers),
+            ],
+            labelColor: Colors.black,
+            unselectedLabelColor: Colors.black54,
+            indicatorColor: Colors.black,
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            _FollowList(users: followingUsers),
+            _FollowList(users: followerUsers),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FollowList extends StatelessWidget {
+  const _FollowList({required this.users});
+
+  final List<FollowUser> users;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      itemBuilder: (context, index) {
+        final user = users[index];
+        return GestureDetector(
+          onTap: () {
+            final profile = Profile(
+              name: user.name,
+              handle: user.handle,
+              bio: user.bio,
+              url: user.handle.replaceFirst('@', ''),
+              totalLikes: user.likes,
+              level: user.level,
+              rank: 0,
+              following: 0,
+              followers: 0,
+            );
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ProfileDetailPage(profile: profile),
+              ),
+            );
+          },
+          child: MonoCard(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.name,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        user.handle,
+                        style: _MonoText.label,
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  AppLocalizations.of(context)!.levelDisplay(user.level),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      separatorBuilder: (context, index) => const SizedBox(height: 10),
+      itemCount: users.length,
+    );
+  }
+}
+
+class FollowUser {
+  const FollowUser({
+    required this.name,
+    required this.handle,
+    required this.bio,
+    required this.level,
+    required this.likes,
+  });
+
+  final String name;
+  final String handle;
+  final String bio;
+  final int level;
+  final int likes;
 }
 
 class RankingPage extends StatefulWidget {
@@ -1625,5 +1753,74 @@ const likedPosts = [
     likes: 410,
     level: 13,
     source: 'Liked',
+  ),
+];
+
+const followingUsers = [
+  FollowUser(
+    name: 'Aya Koga',
+    handle: '@aya',
+    bio: 'ショートノート書いてます',
+    level: 7,
+    likes: 1900,
+  ),
+  FollowUser(
+    name: 'Taku Kato',
+    handle: '@taku',
+    bio: '短文の力を信じる人',
+    level: 8,
+    likes: 580,
+  ),
+  FollowUser(
+    name: 'Rio',
+    handle: '@rio',
+    bio: 'UI研究ノート',
+    level: 11,
+    likes: 2030,
+  ),
+  FollowUser(
+    name: 'Noa',
+    handle: '@noa',
+    bio: '静かなタイムライン提案',
+    level: 10,
+    likes: 1440,
+  ),
+];
+
+const followerUsers = [
+  FollowUser(
+    name: 'Leo Takada',
+    handle: '@leo',
+    bio: 'フォーカスログ',
+    level: 5,
+    likes: 210,
+  ),
+  FollowUser(
+    name: 'Sara',
+    handle: '@sara',
+    bio: '朝活メモ',
+    level: 4,
+    likes: 170,
+  ),
+  FollowUser(
+    name: 'Mina',
+    handle: '@mina',
+    bio: '日報シリーズ',
+    level: 6,
+    likes: 2300,
+  ),
+  FollowUser(
+    name: 'Ken',
+    handle: '@ken',
+    bio: '分析まとめ',
+    level: 9,
+    likes: 1210,
+  ),
+  FollowUser(
+    name: 'Riku',
+    handle: '@riku',
+    bio: '夜間投稿が多い',
+    level: 18,
+    likes: 3200,
   ),
 ];
