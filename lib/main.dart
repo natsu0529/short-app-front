@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'l10n/app_localizations.dart';
 
 void main() {
   runApp(const ShortTextApp());
@@ -12,6 +13,8 @@ class ShortTextApp extends StatelessWidget {
     return MaterialApp(
       title: 'Simple Text SNS',
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
         colorScheme: const ColorScheme.light(
@@ -60,6 +63,68 @@ class _MonoText {
     fontSize: 12,
     color: Colors.black,
   );
+}
+
+String _localizedSource(BuildContext context, String source) {
+  final l10n = AppLocalizations.of(context)!;
+  switch (source) {
+    case 'Latest':
+      return l10n.sourceLatest;
+    case 'Following':
+      return l10n.sourceFollowing;
+    case 'Trending':
+      return l10n.sourceTrending;
+    case 'Liked':
+      return l10n.sourceLiked;
+    default:
+      return source;
+  }
+}
+
+String _localizedTime(BuildContext context, String time) {
+  final l10n = AppLocalizations.of(context)!;
+  final match = RegExp(r'^(\d+)([mhd])$').firstMatch(time);
+  if (match != null) {
+    final count = int.parse(match.group(1)!);
+    final unit = match.group(2)!;
+    switch (unit) {
+      case 'm':
+        return l10n.minutesAgo(count);
+      case 'h':
+        return l10n.hoursAgo(count);
+      case 'd':
+        return l10n.daysAgo(count);
+    }
+  }
+  if (time == 'yesterday') {
+    return l10n.yesterday;
+  }
+  return time;
+}
+
+String _localizedMetric(BuildContext context, String metric) {
+  final l10n = AppLocalizations.of(context)!;
+  final likesMatch = RegExp(r'^([\d.]+k?) likes$').firstMatch(metric);
+  if (likesMatch != null) {
+    return l10n.likesCount(likesMatch.group(1)!);
+  }
+  final followersMatch = RegExp(r'^([\d.]+k?) followers$').firstMatch(metric);
+  if (followersMatch != null) {
+    return l10n.followersCount(followersMatch.group(1)!);
+  }
+  final levelMatch = RegExp(r'^Lv\.(\d+)$').firstMatch(metric);
+  if (levelMatch != null) {
+    return l10n.levelDisplay(int.parse(levelMatch.group(1)!));
+  }
+  return metric;
+}
+
+String _localizedTitle(BuildContext context, RankingEntry entry) {
+  final l10n = AppLocalizations.of(context)!;
+  if (entry.title.endsWith(' post') && entry.userName != null) {
+    return l10n.userPost(entry.userName!);
+  }
+  return entry.title;
 }
 
 class MonoCard extends StatelessWidget {
@@ -124,21 +189,21 @@ class _HomeShellState extends State<HomeShell> {
         selectedIconTheme: const IconThemeData(size: 28, color: Colors.black),
         unselectedIconTheme:
             const IconThemeData(size: 24, color: Colors.black),
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.view_agenda_outlined),
-            activeIcon: Icon(Icons.view_agenda),
-            label: 'タイムライン',
+            icon: const Icon(Icons.view_agenda_outlined),
+            activeIcon: const Icon(Icons.view_agenda),
+            label: AppLocalizations.of(context)!.navTimeline,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.leaderboard_outlined),
-            activeIcon: Icon(Icons.leaderboard),
-            label: 'ランキング',
+            icon: const Icon(Icons.leaderboard_outlined),
+            activeIcon: const Icon(Icons.leaderboard),
+            label: AppLocalizations.of(context)!.navRanking,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'プロフィール',
+            icon: const Icon(Icons.person_outline),
+            activeIcon: const Icon(Icons.person),
+            label: AppLocalizations.of(context)!.navProfile,
           ),
         ],
       ),
@@ -166,7 +231,7 @@ class _TimelinePageState extends State<TimelinePage> {
     final profile = Profile(
       name: post.user,
       handle: post.handle,
-      bio: '${post.user} の投稿を表示中',
+      bio: AppLocalizations.of(context)!.viewingUserPosts(post.user),
       url: post.handle.replaceFirst('@', ''),
       totalLikes: post.likes,
       level: post.level,
@@ -185,99 +250,105 @@ class _TimelinePageState extends State<TimelinePage> {
     showDialog<void>(
       context: context,
       builder: (context) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final double dialogWidth = (screenWidth - 32).clamp(320.0, 600.0);
         return Dialog(
           backgroundColor: Colors.white,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: const BorderSide(color: Colors.black, width: 1.4),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '新規投稿',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.black,
+          child: SizedBox(
+            width: dialogWidth,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.newPost,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _composerController,
-                  maxLines: 5,
-                  minLines: 3,
-                  decoration: const InputDecoration(
-                    hintText: 'テキストを入力',
-                    hintStyle: TextStyle(color: Colors.black54),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black, width: 1.2),
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _composerController,
+                    maxLines: 5,
+                    minLines: 3,
+                    decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context)!.enterText,
+                      hintStyle: const TextStyle(color: Colors.black54),
+                      enabledBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1.2),
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1.4),
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black, width: 1.4),
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
+                    style: const TextStyle(color: Colors.black),
                   ),
-                  style: const TextStyle(color: Colors.black),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.black,
-                        side: const BorderSide(color: Colors.black, width: 1.2),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.black,
+                          side: const BorderSide(color: Colors.black, width: 1.2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
                         ),
-                      ),
-                      onPressed: () {
-                        _composerController.clear();
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text(
-                        'キャンセル',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 12,
-                        ),
-                      ),
-                      onPressed: () {
-                        final text = _composerController.text.trim();
-                        Navigator.of(context).pop();
-                        if (text.isNotEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('投稿しました: $text'),
-                              backgroundColor: Colors.black,
-                            ),
-                          );
+                        onPressed: () {
                           _composerController.clear();
-                        }
-                      },
-                      child: const Text(
-                        '投稿',
-                        style: TextStyle(fontWeight: FontWeight.w800),
+                          Navigator.of(context).pop();
+                        },
+                        child: Text(
+                          AppLocalizations.of(context)!.cancel,
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      const SizedBox(width: 12),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 12,
+                          ),
+                        ),
+                        onPressed: () {
+                          final text = _composerController.text.trim();
+                          Navigator.of(context).pop();
+                          if (text.isNotEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(AppLocalizations.of(context)!.posted(text)),
+                                backgroundColor: Colors.black,
+                              ),
+                            );
+                            _composerController.clear();
+                          }
+                        },
+                        child: Text(
+                          AppLocalizations.of(context)!.post,
+                          style: const TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -294,11 +365,11 @@ class _TimelinePageState extends State<TimelinePage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const _MonochromeTabBar(
+              _MonochromeTabBar(
                 tabs: [
-                  Tab(text: '最新'),
-                  Tab(text: 'フォロー中'),
-                  Tab(text: 'トレンド'),
+                  Tab(text: AppLocalizations.of(context)!.tabLatest),
+                  Tab(text: AppLocalizations.of(context)!.tabFollowing),
+                  Tab(text: AppLocalizations.of(context)!.tabTrending),
                 ],
               ),
               const SizedBox(height: 12),
@@ -437,12 +508,12 @@ class _RankingPageState extends State<RankingPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _MonochromeTabBar(
+          _MonochromeTabBar(
             tabs: [
-              Tab(text: '人気投稿'),
-              Tab(text: 'いいね'),
-              Tab(text: 'レベル'),
-              Tab(text: 'フォロワー'),
+              Tab(text: AppLocalizations.of(context)!.tabPopularPosts),
+              Tab(text: AppLocalizations.of(context)!.tabLikes),
+              Tab(text: AppLocalizations.of(context)!.tabLevel),
+              Tab(text: AppLocalizations.of(context)!.tabFollowers),
             ],
           ),
           const SizedBox(height: 12),
@@ -507,6 +578,25 @@ class _ProfileScreenBodyState extends State<_ProfileScreenBody> {
     );
   }
 
+  void _openProfileFromPost(Post post) {
+    final profile = Profile(
+      name: post.user,
+      handle: post.handle,
+      bio: AppLocalizations.of(context)!.viewingUserPosts(post.user),
+      url: post.handle.replaceFirst('@', ''),
+      totalLikes: post.likes,
+      level: post.level,
+      rank: 0,
+      following: 0,
+      followers: 0,
+    );
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ProfileDetailPage(profile: profile),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -523,6 +613,7 @@ class _ProfileScreenBodyState extends State<_ProfileScreenBody> {
               posts: likedPosts,
               controller: _likedScrollController,
               onHeaderTap: _scrollLikedToTop,
+              onPostTap: _openProfileFromPost,
             ),
           ),
         ],
@@ -594,7 +685,7 @@ class _PostCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${post.user} ・ ${post.time}',
+              '${post.user} ・ ${_localizedTime(context, post.time)}',
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
@@ -614,18 +705,22 @@ class _PostCard extends StatelessWidget {
                   children: [
                     const Icon(Icons.favorite_border, size: 18),
                     const SizedBox(width: 6),
-                    Text(
-                      '${post.likes} いいね',
-                      style: _MonoText.subtitle,
+                    Builder(
+                      builder: (context) => Text(
+                        AppLocalizations.of(context)!.likesCount(post.likes.toString()),
+                        style: _MonoText.subtitle,
+                      ),
                     ),
                   ],
                 ),
-                Text(
-                  post.source,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
+                Builder(
+                  builder: (context) => Text(
+                    _localizedSource(context, post.source),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               ],
@@ -662,7 +757,7 @@ class _RankingList extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        entry.title,
+                        _localizedTitle(context, entry),
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -678,7 +773,7 @@ class _RankingList extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  entry.metric,
+                  _localizedMetric(context, entry.metric),
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -742,7 +837,7 @@ class _LevelIndicator extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
-          'Lv.$level',
+          AppLocalizations.of(context)!.levelDisplay(level),
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w700,
@@ -774,7 +869,6 @@ class _LevelIndicator extends StatelessWidget {
     );
   }
 }
-
 class _ProfileHeader extends StatelessWidget {
   const _ProfileHeader({
     required this.profile,
@@ -827,15 +921,15 @@ class _ProfileHeader extends StatelessWidget {
                       ),
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('フォローしました'),
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context)!.followed),
                             backgroundColor: Colors.black,
                           ),
                         );
                       },
-                      child: const Text(
-                        'フォローする',
-                        style: TextStyle(
+                      child: Text(
+                        AppLocalizations.of(context)!.follow,
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
@@ -921,8 +1015,8 @@ class _ProfileEditDialogState extends State<_ProfileEditDialog> {
   void _save() {
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('プロフィールを保存しました'),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.profileSaved),
         backgroundColor: Colors.black,
       ),
     );
@@ -931,8 +1025,8 @@ class _ProfileEditDialogState extends State<_ProfileEditDialog> {
   void _logout() {
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('ログアウトしました'),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.loggedOut),
         backgroundColor: Colors.black,
       ),
     );
@@ -940,32 +1034,42 @@ class _ProfileEditDialogState extends State<_ProfileEditDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Colors.black, width: 1.4),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'プロフィール編集',
-              style: TextStyle(
+    final screenWidth = MediaQuery.of(context).size.width;
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pop(),
+      child: Scaffold(
+        backgroundColor: Colors.black.withValues(alpha: 0.5),
+        body: GestureDetector(
+          onTap: () {}, // 内側タップは何もしない
+          child: Center(
+            child: Container(
+              width: screenWidth - 32,
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.black, width: 1.4),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+              AppLocalizations.of(context)!.editProfile,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
                 color: Colors.black,
               ),
             ),
             const SizedBox(height: 20),
-            _buildTextField('名前', _nameController),
+            _buildTextField(AppLocalizations.of(context)!.name, _nameController),
             const SizedBox(height: 12),
-            _buildTextField('Bio', _bioController, maxLines: 3),
+            _buildTextField(AppLocalizations.of(context)!.bio, _bioController, maxLines: 3),
             const SizedBox(height: 12),
-            _buildTextField('URL', _urlController),
+            _buildTextField(AppLocalizations.of(context)!.url, _urlController),
             const SizedBox(height: 20),
             Row(
               children: [
@@ -977,9 +1081,9 @@ class _ProfileEditDialogState extends State<_ProfileEditDialog> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text(
-                      'キャンセル',
-                      style: TextStyle(fontWeight: FontWeight.w700),
+                    child: Text(
+                      AppLocalizations.of(context)!.cancel,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),
@@ -992,9 +1096,9 @@ class _ProfileEditDialogState extends State<_ProfileEditDialog> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     onPressed: _save,
-                    child: const Text(
-                      '保存',
-                      style: TextStyle(fontWeight: FontWeight.w800),
+                    child: Text(
+                      AppLocalizations.of(context)!.save,
+                      style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                   ),
                 ),
@@ -1009,13 +1113,17 @@ class _ProfileEditDialogState extends State<_ProfileEditDialog> {
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
                 onPressed: _logout,
-                child: const Text(
-                  'ログアウト',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                child: Text(
+                  AppLocalizations.of(context)!.logout,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
               ),
             ),
-          ],
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -1074,17 +1182,17 @@ class _ProfileStats extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  _StatBlock(label: '総獲得いいね', value: '${profile.totalLikes}'),
-                  _StatBlock(label: 'レベル', value: 'Lv.${profile.level}'),
-                  _StatBlock(label: 'My ランキング', value: '#${profile.rank}'),
+                  _StatBlock(label: AppLocalizations.of(context)!.totalLikes, value: '${profile.totalLikes}'),
+                  _StatBlock(label: AppLocalizations.of(context)!.level, value: AppLocalizations.of(context)!.levelDisplay(profile.level)),
+                  _StatBlock(label: AppLocalizations.of(context)!.myRanking, value: '#${profile.rank}'),
                 ],
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
-                  _StatBlock(label: 'フォロー', value: '${profile.following}'),
-                  _StatBlock(label: 'フォロワー', value: '${profile.followers}'),
-                  _StatBlock(label: '状態', value: profile.statusLabel),
+                  _StatBlock(label: AppLocalizations.of(context)!.following, value: '${profile.following}'),
+                  _StatBlock(label: AppLocalizations.of(context)!.followers, value: '${profile.followers}'),
+                  _StatBlock(label: AppLocalizations.of(context)!.status, value: AppLocalizations.of(context)!.statusActive),
                 ],
               ),
             ],
@@ -1096,35 +1204,48 @@ class _ProfileStats extends StatelessWidget {
 }
 
 class _StatBlock extends StatelessWidget {
-  const _StatBlock({required this.label, required this.value});
+  const _StatBlock({
+    required this.label,
+    required this.value,
+    this.onTap,
+  });
 
   final String label;
   final String value;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.black,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    );
+
     return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
+      child: onTap != null
+          ? GestureDetector(
+              onTap: onTap,
+              behavior: HitTestBehavior.opaque,
+              child: content,
+            )
+          : content,
     );
   }
 }
@@ -1134,11 +1255,13 @@ class _LikedPostsSection extends StatelessWidget {
     required this.posts,
     required this.controller,
     required this.onHeaderTap,
+    this.onPostTap,
   });
 
   final List<Post> posts;
   final ScrollController controller;
   final VoidCallback onHeaderTap;
+  final ValueChanged<Post>? onPostTap;
 
   @override
   Widget build(BuildContext context) {
@@ -1147,13 +1270,13 @@ class _LikedPostsSection extends StatelessWidget {
       children: [
         InkWell(
           onTap: onHeaderTap,
-          child: const Padding(
-            padding: EdgeInsets.symmetric(vertical: 4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
             child: Center(
               child: Text(
-                'いいねした投稿',
+                AppLocalizations.of(context)!.likedPosts,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                   color: Colors.black,
@@ -1166,7 +1289,10 @@ class _LikedPostsSection extends StatelessWidget {
         Expanded(
           child: ListView.separated(
             controller: controller,
-            itemBuilder: (context, index) => _PostCard(post: posts[index]),
+            itemBuilder: (context, index) => _PostCard(
+              post: posts[index],
+              onTap: onPostTap,
+            ),
             separatorBuilder: (context, index) => const SizedBox(height: 10),
             itemCount: posts.length,
           ),
@@ -1264,7 +1390,7 @@ const latestPosts = [
   Post(
     user: 'Aya Koga',
     handle: '@aya',
-    time: '2分前',
+    time: '2m',
     body: 'シンプルな文章だけでつながる日課。今日のアウトプットは「書きやすさ」に全振りしてみた。',
     likes: 42,
     level: 7,
@@ -1273,7 +1399,7 @@ const latestPosts = [
   Post(
     user: 'Taku Kato',
     handle: '@taku',
-    time: '10分前',
+    time: '10m',
     body: '返信がない分、書いた一文の質が問われる。短いほど意思が鮮明になる感覚がある。',
     likes: 58,
     level: 8,
@@ -1282,7 +1408,7 @@ const latestPosts = [
   Post(
     user: 'Mina',
     handle: '@mina',
-    time: '18分前',
+    time: '18m',
     body: '今日の習慣ログ: 500 文字以内で日報を書いたらタスクが整理された。短文は強い。',
     likes: 31,
     level: 6,
@@ -1294,7 +1420,7 @@ const followingPosts = [
   Post(
     user: 'Leo Takada',
     handle: '@leo',
-    time: '5分前',
+    time: '5m',
     body: 'タイムラインは読むだけ。いいねが行動変容になるから、書き手の本気度も見える。',
     likes: 21,
     level: 5,
@@ -1303,7 +1429,7 @@ const followingPosts = [
   Post(
     user: 'Sara',
     handle: '@sara',
-    time: '12分前',
+    time: '12m',
     body: '短いテキストしか送れないと、書き出しでどれだけ引き込めるかが勝負。',
     likes: 17,
     level: 4,
@@ -1312,7 +1438,7 @@ const followingPosts = [
   Post(
     user: 'Aki',
     handle: '@aki',
-    time: '29分前',
+    time: '29m',
     body: 'フォロー中フィードは読み物として成立してきた。返信ゼロの静けさがいい。',
     likes: 9,
     level: 4,
@@ -1324,7 +1450,7 @@ const trendingPosts = [
   Post(
     user: 'Rio',
     handle: '@rio',
-    time: '1時間前',
+    time: '1h',
     body: '「文字と輪郭は黒、その他は白」の縛りで UI を組んでみたら、余白と線が主役になった。',
     likes: 203,
     level: 11,
@@ -1333,7 +1459,7 @@ const trendingPosts = [
   Post(
     user: 'Noa',
     handle: '@noa',
-    time: '2時間前',
+    time: '2h',
     body: '通知に頼らず、好きなタイミングで読みに行く。SNS の時間を取り戻す挑戦。',
     likes: 144,
     level: 10,
@@ -1342,7 +1468,7 @@ const trendingPosts = [
   Post(
     user: 'Ken',
     handle: '@ken',
-    time: '4時間前',
+    time: '4h',
     body: '「いいね」がレベルに直結すると、日々の投稿にも目的ができる。数字が素直。',
     likes: 121,
     level: 9,
@@ -1353,25 +1479,25 @@ const trendingPosts = [
 const popularPosts = [
   RankingEntry(
     position: 1,
-    title: 'Rio の投稿',
+    title: 'Rio post',
     subtitle: '余白と線が主役の UI 研究ノート',
-    metric: '203 いいね',
+    metric: '203 likes',
     userName: 'Rio',
     handle: '@rio',
   ),
   RankingEntry(
     position: 2,
-    title: 'Noa の投稿',
+    title: 'Noa post',
     subtitle: '通知に頼らない SNS の実験',
-    metric: '144 いいね',
+    metric: '144 likes',
     userName: 'Noa',
     handle: '@noa',
   ),
   RankingEntry(
     position: 3,
-    title: 'Ken の投稿',
+    title: 'Ken post',
     subtitle: 'いいね数とレベルの相関メモ',
-    metric: '121 いいね',
+    metric: '121 likes',
     userName: 'Ken',
     handle: '@ken',
   ),
@@ -1382,7 +1508,7 @@ const totalLikesRanking = [
     position: 1,
     title: 'Mina',
     subtitle: '@mina ・ 日報シリーズ',
-    metric: '2.3k いいね',
+    metric: '2.3k likes',
     userName: 'Mina',
     handle: '@mina',
   ),
@@ -1390,7 +1516,7 @@ const totalLikesRanking = [
     position: 2,
     title: 'Aya Koga',
     subtitle: '@aya ・ ショートノート',
-    metric: '1.9k いいね',
+    metric: '1.9k likes',
     userName: 'Aya Koga',
     handle: '@aya',
   ),
@@ -1398,7 +1524,7 @@ const totalLikesRanking = [
     position: 3,
     title: 'Leo Takada',
     subtitle: '@leo ・ フォーカスログ',
-    metric: '1.4k いいね',
+    metric: '1.4k likes',
     userName: 'Leo Takada',
     handle: '@leo',
   ),
@@ -1436,7 +1562,7 @@ const followerRanking = [
     position: 1,
     title: 'Noa',
     subtitle: '@noa ・ 静かなタイムライン提案',
-    metric: '12.4k フォロワー',
+    metric: '12.4k followers',
     userName: 'Noa',
     handle: '@noa',
   ),
@@ -1444,7 +1570,7 @@ const followerRanking = [
     position: 2,
     title: 'Aya Koga',
     subtitle: '@aya ・ 日々の一行',
-    metric: '9.8k フォロワー',
+    metric: '9.8k followers',
     userName: 'Aya Koga',
     handle: '@aya',
   ),
@@ -1452,7 +1578,7 @@ const followerRanking = [
     position: 3,
     title: 'Mina',
     subtitle: '@mina ・ まとめ屋',
-    metric: '7.1k フォロワー',
+    metric: '7.1k followers',
     userName: 'Mina',
     handle: '@mina',
   ),
@@ -1476,7 +1602,7 @@ const likedPosts = [
   Post(
     user: 'Riku',
     handle: '@riku',
-    time: '昨日',
+    time: 'yesterday',
     body: '夜の静けさに合わせて 120 文字だけ書くと、頭が整理される。不思議な儀式。',
     likes: 320,
     level: 12,
@@ -1485,7 +1611,7 @@ const likedPosts = [
   Post(
     user: 'Sara',
     handle: '@sara',
-    time: '2日前',
+    time: '2d',
     body: '朝活の始まりは 3 行の日報。短くても積み重ねると習慣になるのが目に見える。',
     likes: 268,
     level: 11,
@@ -1494,7 +1620,7 @@ const likedPosts = [
   Post(
     user: 'Noa',
     handle: '@noa',
-    time: '3日前',
+    time: '3d',
     body: '音のない SNS で、文章の熱量だけを感じたい。だからこそレベルとランキングが効く。',
     likes: 410,
     level: 13,

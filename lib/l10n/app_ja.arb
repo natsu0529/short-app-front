@@ -1,0 +1,112 @@
+{
+  "@@locale": "ja",
+  "navTimeline": "タイムライン",
+  "navRanking": "ランキング",
+  "navProfile": "プロフィール",
+  "tabLatest": "最新",
+  "tabFollowing": "フォロー中",
+  "tabTrending": "トレンド",
+  "tabPopularPosts": "人気投稿",
+  "tabLikes": "いいね",
+  "tabLevel": "レベル",
+  "tabFollowers": "フォロワー",
+  "newPost": "新規投稿",
+  "enterText": "テキストを入力",
+  "cancel": "キャンセル",
+  "post": "投稿",
+  "posted": "投稿しました: {text}",
+  "@posted": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "followed": "フォローしました",
+  "follow": "フォローする",
+  "editProfile": "プロフィール編集",
+  "name": "名前",
+  "bio": "Bio",
+  "url": "URL",
+  "save": "保存",
+  "logout": "ログアウト",
+  "profileSaved": "プロフィールを保存しました",
+  "loggedOut": "ログアウトしました",
+  "totalLikes": "総獲得いいね",
+  "level": "レベル",
+  "myRanking": "My ランキング",
+  "following": "フォロー",
+  "followers": "フォロワー",
+  "status": "状態",
+  "statusActive": "アクティブ",
+  "likedPosts": "いいねした投稿",
+  "likesCount": "{count} いいね",
+  "@likesCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "viewingUserPosts": "{user} の投稿を表示中",
+  "@viewingUserPosts": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceLatest": "最新",
+  "sourceFollowing": "フォロー中",
+  "sourceTrending": "トレンド",
+  "sourceLiked": "いいね済み",
+  "minutesAgo": "{count}分前",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursAgo": "{count}時間前",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yesterday": "昨日",
+  "daysAgo": "{count}日前",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "followersCount": "{count} フォロワー",
+  "@followersCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "levelDisplay": "Lv.{level}",
+  "@levelDisplay": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "userPost": "{user} の投稿",
+  "@userPost": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  }
+}
