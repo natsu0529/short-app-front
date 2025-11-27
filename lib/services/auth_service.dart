@@ -1,29 +1,24 @@
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
 import '../models/models.dart';
 import 'api_client.dart';
 
 class AuthService {
-  final firebase_auth.FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
   final ApiClient _apiClient;
 
   User? _currentUser;
 
   AuthService({
-    firebase_auth.FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
     required ApiClient apiClient,
-  })  : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn(),
+  })  : _googleSignIn = googleSignIn ?? GoogleSignIn(
+          scopes: ['email', 'profile'],
+        ),
         _apiClient = apiClient;
 
   User? get currentUser => _currentUser;
   bool get isLoggedIn => _currentUser != null && _apiClient.isAuthenticated;
-
-  Stream<firebase_auth.User?> get authStateChanges =>
-      _firebaseAuth.authStateChanges();
 
   Future<User?> signInWithGoogle() async {
     try {
@@ -31,25 +26,14 @@ class AuthService {
       if (googleUser == null) return null;
 
       final googleAuth = await googleUser.authentication;
-      final credential = firebase_auth.GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      final userCredential =
-          await _firebaseAuth.signInWithCredential(credential);
-      final firebaseUser = userCredential.user;
-      if (firebaseUser == null) return null;
-
-      // Get Firebase ID token to authenticate with backend
-      final idToken = await firebaseUser.getIdToken();
+      final idToken = googleAuth.idToken;
       if (idToken == null) return null;
 
-      // Authenticate with backend and get API token
+      // Send Google ID token to backend for verification
       final apiUser = await _authenticateWithBackend(
         idToken: idToken,
-        email: firebaseUser.email ?? '',
-        displayName: firebaseUser.displayName ?? '',
+        email: googleUser.email,
+        displayName: googleUser.displayName ?? '',
       );
 
       _currentUser = apiUser;
@@ -64,7 +48,6 @@ class AuthService {
 
   Future<User?> signInWithEmailPassword(String email, String password) async {
     try {
-      // Try to sign in with backend directly
       final response = await _apiClient.post<Map<String, dynamic>>(
         '/api/auth/login/',
         data: {
@@ -76,7 +59,6 @@ class AuthService {
       final token = response.data!['token'] as String;
       _apiClient.setAuthToken(token);
 
-      // Get current user
       final userResponse = await _apiClient.get<Map<String, dynamic>>(
         '/api/users/me/',
       );
@@ -97,7 +79,6 @@ class AuthService {
     required String password,
   }) async {
     try {
-      // Create user on backend
       final response = await _apiClient.post<Map<String, dynamic>>(
         '/api/users/',
         data: {
@@ -109,10 +90,7 @@ class AuthService {
       );
 
       final user = User.fromJson(response.data!);
-
-      // Login after registration
       await signInWithEmailPassword(email, password);
-
       return user;
     } catch (e) {
       if (kDebugMode) {
@@ -128,9 +106,9 @@ class AuthService {
     required String displayName,
   }) async {
     try {
-      // Try to authenticate with Firebase token
+      // Send Google ID token to backend
       final response = await _apiClient.post<Map<String, dynamic>>(
-        '/api/auth/firebase/',
+        '/api/auth/google/',
         data: {
           'id_token': idToken,
           'email': email,
@@ -141,7 +119,6 @@ class AuthService {
       final token = response.data!['token'] as String;
       _apiClient.setAuthToken(token);
 
-      // Get current user from backend
       final userResponse = await _apiClient.get<Map<String, dynamic>>(
         '/api/users/me/',
       );
@@ -156,7 +133,6 @@ class AuthService {
 
   Future<void> signOut() async {
     await _googleSignIn.signOut();
-    await _firebaseAuth.signOut();
     _apiClient.setAuthToken(null);
     _currentUser = null;
   }
