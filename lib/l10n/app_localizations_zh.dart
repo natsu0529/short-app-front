@@ -166,4 +166,61 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get liked => '已点赞';
+
+  @override
+  String get loginRequired => '请登录';
+
+  @override
+  String get login => '登录';
+
+  @override
+  String get register => '注册';
+
+  @override
+  String get email => '邮箱';
+
+  @override
+  String get password => '密码';
+
+  @override
+  String get username => '用户名';
+
+  @override
+  String get displayName => '显示名称';
+
+  @override
+  String get confirmPassword => '确认密码';
+
+  @override
+  String get alreadyHaveAccount => '已有账号？';
+
+  @override
+  String get dontHaveAccount => '没有账号？';
+
+  @override
+  String get orContinueWith => '或者';
+
+  @override
+  String get signInWithGoogle => '使用Google登录';
+
+  @override
+  String get unfollow => '取消关注';
+
+  @override
+  String get unfollowed => '已取消关注';
+
+  @override
+  String get loading => '加载中...';
+
+  @override
+  String get error => '发生错误';
+
+  @override
+  String get retry => '重试';
+
+  @override
+  String get noPostsYet => '暂无帖子';
+
+  @override
+  String get noPosts => '没有帖子';
 }

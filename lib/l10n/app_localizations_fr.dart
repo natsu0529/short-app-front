@@ -166,4 +166,61 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get liked => 'Aimé !';
+
+  @override
+  String get loginRequired => 'Veuillez vous connecter';
+
+  @override
+  String get login => 'Connexion';
+
+  @override
+  String get register => 'S\'inscrire';
+
+  @override
+  String get email => 'E-mail';
+
+  @override
+  String get password => 'Mot de passe';
+
+  @override
+  String get username => 'Nom d\'utilisateur';
+
+  @override
+  String get displayName => 'Nom affiché';
+
+  @override
+  String get confirmPassword => 'Confirmer le mot de passe';
+
+  @override
+  String get alreadyHaveAccount => 'Déjà un compte ?';
+
+  @override
+  String get dontHaveAccount => 'Pas de compte ?';
+
+  @override
+  String get orContinueWith => 'Ou continuer avec';
+
+  @override
+  String get signInWithGoogle => 'Se connecter avec Google';
+
+  @override
+  String get unfollow => 'Se désabonner';
+
+  @override
+  String get unfollowed => 'Désabonné';
+
+  @override
+  String get loading => 'Chargement...';
+
+  @override
+  String get error => 'Une erreur est survenue';
+
+  @override
+  String get retry => 'Réessayer';
+
+  @override
+  String get noPostsYet => 'Aucune publication';
+
+  @override
+  String get noPosts => 'Pas de publications';
 }

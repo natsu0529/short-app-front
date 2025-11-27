@@ -166,4 +166,61 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get liked => '¡Me gusta!';
+
+  @override
+  String get loginRequired => 'Por favor inicia sesión';
+
+  @override
+  String get login => 'Iniciar sesión';
+
+  @override
+  String get register => 'Registrarse';
+
+  @override
+  String get email => 'Correo';
+
+  @override
+  String get password => 'Contraseña';
+
+  @override
+  String get username => 'Usuario';
+
+  @override
+  String get displayName => 'Nombre visible';
+
+  @override
+  String get confirmPassword => 'Confirmar contraseña';
+
+  @override
+  String get alreadyHaveAccount => '¿Ya tienes cuenta?';
+
+  @override
+  String get dontHaveAccount => '¿No tienes cuenta?';
+
+  @override
+  String get orContinueWith => 'O continuar con';
+
+  @override
+  String get signInWithGoogle => 'Iniciar con Google';
+
+  @override
+  String get unfollow => 'Dejar de seguir';
+
+  @override
+  String get unfollowed => 'Dejaste de seguir';
+
+  @override
+  String get loading => 'Cargando...';
+
+  @override
+  String get error => 'Ocurrió un error';
+
+  @override
+  String get retry => 'Reintentar';
+
+  @override
+  String get noPostsYet => 'Aún no hay publicaciones';
+
+  @override
+  String get noPosts => 'Sin publicaciones';
 }

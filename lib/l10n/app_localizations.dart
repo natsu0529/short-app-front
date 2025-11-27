@@ -387,6 +387,120 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'いいねしました'**
   String get liked;
+
+  /// No description provided for @loginRequired.
+  ///
+  /// In ja, this message translates to:
+  /// **'ログインしてください'**
+  String get loginRequired;
+
+  /// No description provided for @login.
+  ///
+  /// In ja, this message translates to:
+  /// **'ログイン'**
+  String get login;
+
+  /// No description provided for @register.
+  ///
+  /// In ja, this message translates to:
+  /// **'新規登録'**
+  String get register;
+
+  /// No description provided for @email.
+  ///
+  /// In ja, this message translates to:
+  /// **'メールアドレス'**
+  String get email;
+
+  /// No description provided for @password.
+  ///
+  /// In ja, this message translates to:
+  /// **'パスワード'**
+  String get password;
+
+  /// No description provided for @username.
+  ///
+  /// In ja, this message translates to:
+  /// **'ユーザー名'**
+  String get username;
+
+  /// No description provided for @displayName.
+  ///
+  /// In ja, this message translates to:
+  /// **'表示名'**
+  String get displayName;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In ja, this message translates to:
+  /// **'パスワード確認'**
+  String get confirmPassword;
+
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In ja, this message translates to:
+  /// **'アカウントをお持ちの方'**
+  String get alreadyHaveAccount;
+
+  /// No description provided for @dontHaveAccount.
+  ///
+  /// In ja, this message translates to:
+  /// **'アカウントをお持ちでない方'**
+  String get dontHaveAccount;
+
+  /// No description provided for @orContinueWith.
+  ///
+  /// In ja, this message translates to:
+  /// **'または'**
+  String get orContinueWith;
+
+  /// No description provided for @signInWithGoogle.
+  ///
+  /// In ja, this message translates to:
+  /// **'Googleでログイン'**
+  String get signInWithGoogle;
+
+  /// No description provided for @unfollow.
+  ///
+  /// In ja, this message translates to:
+  /// **'フォロー解除'**
+  String get unfollow;
+
+  /// No description provided for @unfollowed.
+  ///
+  /// In ja, this message translates to:
+  /// **'フォロー解除しました'**
+  String get unfollowed;
+
+  /// No description provided for @loading.
+  ///
+  /// In ja, this message translates to:
+  /// **'読み込み中...'**
+  String get loading;
+
+  /// No description provided for @error.
+  ///
+  /// In ja, this message translates to:
+  /// **'エラーが発生しました'**
+  String get error;
+
+  /// No description provided for @retry.
+  ///
+  /// In ja, this message translates to:
+  /// **'再試行'**
+  String get retry;
+
+  /// No description provided for @noPostsYet.
+  ///
+  /// In ja, this message translates to:
+  /// **'投稿はまだありません'**
+  String get noPostsYet;
+
+  /// No description provided for @noPosts.
+  ///
+  /// In ja, this message translates to:
+  /// **'投稿がありません'**
+  String get noPosts;
 }
 
 class _AppLocalizationsDelegate

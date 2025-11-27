@@ -166,4 +166,61 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get liked => 'Понравилось!';
+
+  @override
+  String get loginRequired => 'Войдите в систему';
+
+  @override
+  String get login => 'Вход';
+
+  @override
+  String get register => 'Регистрация';
+
+  @override
+  String get email => 'Эл. почта';
+
+  @override
+  String get password => 'Пароль';
+
+  @override
+  String get username => 'Имя пользователя';
+
+  @override
+  String get displayName => 'Отображаемое имя';
+
+  @override
+  String get confirmPassword => 'Подтвердите пароль';
+
+  @override
+  String get alreadyHaveAccount => 'Уже есть аккаунт?';
+
+  @override
+  String get dontHaveAccount => 'Нет аккаунта?';
+
+  @override
+  String get orContinueWith => 'Или продолжить с';
+
+  @override
+  String get signInWithGoogle => 'Войти через Google';
+
+  @override
+  String get unfollow => 'Отписаться';
+
+  @override
+  String get unfollowed => 'Отписались';
+
+  @override
+  String get loading => 'Загрузка...';
+
+  @override
+  String get error => 'Произошла ошибка';
+
+  @override
+  String get retry => 'Повторить';
+
+  @override
+  String get noPostsYet => 'Пока нет записей';
+
+  @override
+  String get noPosts => 'Нет записей';
 }

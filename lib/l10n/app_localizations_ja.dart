@@ -166,4 +166,61 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get liked => 'いいねしました';
+
+  @override
+  String get loginRequired => 'ログインしてください';
+
+  @override
+  String get login => 'ログイン';
+
+  @override
+  String get register => '新規登録';
+
+  @override
+  String get email => 'メールアドレス';
+
+  @override
+  String get password => 'パスワード';
+
+  @override
+  String get username => 'ユーザー名';
+
+  @override
+  String get displayName => '表示名';
+
+  @override
+  String get confirmPassword => 'パスワード確認';
+
+  @override
+  String get alreadyHaveAccount => 'アカウントをお持ちの方';
+
+  @override
+  String get dontHaveAccount => 'アカウントをお持ちでない方';
+
+  @override
+  String get orContinueWith => 'または';
+
+  @override
+  String get signInWithGoogle => 'Googleでログイン';
+
+  @override
+  String get unfollow => 'フォロー解除';
+
+  @override
+  String get unfollowed => 'フォロー解除しました';
+
+  @override
+  String get loading => '読み込み中...';
+
+  @override
+  String get error => 'エラーが発生しました';
+
+  @override
+  String get retry => '再試行';
+
+  @override
+  String get noPostsYet => '投稿はまだありません';
+
+  @override
+  String get noPosts => '投稿がありません';
 }
