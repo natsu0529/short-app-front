@@ -45,5 +45,6 @@
   "daysAgo": "{count}天前",
   "followersCount": "{count} 粉丝",
   "levelDisplay": "Lv.{level}",
-  "userPost": "{user} 的帖子"
+  "userPost": "{user} 的帖子",
+  "liked": "已点赞"
 }

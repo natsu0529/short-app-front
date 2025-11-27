@@ -45,5 +45,6 @@
   "daysAgo": "hace {count}d",
   "followersCount": "{count} seguidores",
   "levelDisplay": "Nv.{level}",
-  "userPost": "Publicación de {user}"
+  "userPost": "Publicación de {user}",
+  "liked": "¡Me gusta!"
 }

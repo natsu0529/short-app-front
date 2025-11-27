@@ -1047,26 +1047,34 @@ class _PostCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.favorite_border, size: 18),
-                    const SizedBox(width: 6),
-                    Builder(
-                      builder: (context) => Text(
+                GestureDetector(
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(AppLocalizations.of(context)!.liked),
+                        backgroundColor: Colors.black,
+                        duration: const Duration(milliseconds: 500),
+                      ),
+                    );
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.favorite_border, size: 18),
+                      const SizedBox(width: 6),
+                      Text(
                         AppLocalizations.of(context)!.likesCount(post.likes.toString()),
                         style: _MonoText.subtitle,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                Builder(
-                  builder: (context) => Text(
-                    _localizedSource(context, post.source),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
+                Text(
+                  _localizedSource(context, post.source),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
                   ),
                 ),
               ],

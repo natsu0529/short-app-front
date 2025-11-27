@@ -163,4 +163,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String userPost(String user) {
     return '$user の投稿';
   }
+
+  @override
+  String get liked => 'いいねしました';
 }

@@ -45,5 +45,6 @@
   "daysAgo": "{count}д назад",
   "followersCount": "{count} подписчиков",
   "levelDisplay": "Ур.{level}",
-  "userPost": "Запись {user}"
+  "userPost": "Запись {user}",
+  "liked": "Понравилось!"
 }

@@ -163,4 +163,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String userPost(String user) {
     return 'Publication de $user';
   }
+
+  @override
+  String get liked => 'Aimé !';
 }

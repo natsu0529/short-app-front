@@ -381,6 +381,12 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'{user} の投稿'**
   String userPost(String user);
+
+  /// No description provided for @liked.
+  ///
+  /// In ja, this message translates to:
+  /// **'いいねしました'**
+  String get liked;
 }
 
 class _AppLocalizationsDelegate

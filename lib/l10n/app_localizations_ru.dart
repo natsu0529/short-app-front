@@ -163,4 +163,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String userPost(String user) {
     return 'Запись $user';
   }
+
+  @override
+  String get liked => 'Понравилось!';
 }

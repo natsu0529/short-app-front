@@ -163,4 +163,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String userPost(String user) {
     return '$user 的帖子';
   }
+
+  @override
+  String get liked => '已点赞';
 }

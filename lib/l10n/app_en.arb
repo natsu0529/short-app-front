@@ -45,5 +45,6 @@
   "daysAgo": "{count}d ago",
   "followersCount": "{count} followers",
   "levelDisplay": "Lv.{level}",
-  "userPost": "{user}'s post"
+  "userPost": "{user}'s post",
+  "liked": "Liked!"
 }

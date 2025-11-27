@@ -45,5 +45,6 @@
   "daysAgo": "il y a {count}j",
   "followersCount": "{count} abonnés",
   "levelDisplay": "Nv.{level}",
-  "userPost": "Publication de {user}"
+  "userPost": "Publication de {user}",
+  "liked": "Aimé !"
 }
