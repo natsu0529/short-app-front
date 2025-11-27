@@ -223,4 +223,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get noPosts => '没有帖子';
+
+  @override
+  String get appTitle => 'Short App';
+
+  @override
+  String get loginDescription => '与世界分享你的精彩瞬间';
 }

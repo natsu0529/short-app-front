@@ -65,5 +65,7 @@
   "error": "Ocurrió un error",
   "retry": "Reintentar",
   "noPostsYet": "Aún no hay publicaciones",
-  "noPosts": "Sin publicaciones"
+  "noPosts": "Sin publicaciones",
+  "appTitle": "Short App",
+  "loginDescription": "Comparte tus momentos con el mundo"
 }

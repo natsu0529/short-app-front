@@ -65,5 +65,7 @@
   "error": "An error occurred",
   "retry": "Retry",
   "noPostsYet": "No posts yet",
-  "noPosts": "No posts"
+  "noPosts": "No posts",
+  "appTitle": "Short App",
+  "loginDescription": "Share your moments with the world"
 }

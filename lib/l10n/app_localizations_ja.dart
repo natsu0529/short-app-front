@@ -223,4 +223,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get noPosts => '投稿がありません';
+
+  @override
+  String get appTitle => 'Short App';
+
+  @override
+  String get loginDescription => 'あなたの瞬間を世界とシェアしよう';
 }

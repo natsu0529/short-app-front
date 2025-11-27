@@ -128,5 +128,7 @@
   "error": "エラーが発生しました",
   "retry": "再試行",
   "noPostsYet": "投稿はまだありません",
-  "noPosts": "投稿がありません"
+  "noPosts": "投稿がありません",
+  "appTitle": "Short App",
+  "loginDescription": "あなたの瞬間を世界とシェアしよう"
 }

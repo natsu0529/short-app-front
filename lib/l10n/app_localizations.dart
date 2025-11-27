@@ -501,6 +501,18 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'投稿がありません'**
   String get noPosts;
+
+  /// No description provided for @appTitle.
+  ///
+  /// In ja, this message translates to:
+  /// **'Short App'**
+  String get appTitle;
+
+  /// No description provided for @loginDescription.
+  ///
+  /// In ja, this message translates to:
+  /// **'あなたの瞬間を世界とシェアしよう'**
+  String get loginDescription;
 }
 
 class _AppLocalizationsDelegate

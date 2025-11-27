@@ -223,4 +223,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get noPosts => 'Нет записей';
+
+  @override
+  String get appTitle => 'Short App';
+
+  @override
+  String get loginDescription => 'Делитесь моментами со всем миром';
 }

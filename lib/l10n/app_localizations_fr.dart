@@ -223,4 +223,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get noPosts => 'Pas de publications';
+
+  @override
+  String get appTitle => 'Short App';
+
+  @override
+  String get loginDescription => 'Partagez vos moments avec le monde';
 }

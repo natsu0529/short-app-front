@@ -223,4 +223,10 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get noPosts => 'Sin publicaciones';
+
+  @override
+  String get appTitle => 'Short App';
+
+  @override
+  String get loginDescription => 'Comparte tus momentos con el mundo';
 }

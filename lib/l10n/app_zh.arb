@@ -65,5 +65,7 @@
   "error": "发生错误",
   "retry": "重试",
   "noPostsYet": "暂无帖子",
-  "noPosts": "没有帖子"
+  "noPosts": "没有帖子",
+  "appTitle": "Short App",
+  "loginDescription": "与世界分享你的精彩瞬间"
 }
