@@ -503,7 +503,7 @@ class FollowListPage extends StatelessWidget {
             indicatorColor: Colors.black,
           ),
         ),
-        body: TabBarView(
+        body: const TabBarView(
           children: [
             _FollowList(users: followingUsers),
             _FollowList(users: followerUsers),
@@ -673,6 +673,192 @@ class _RankingPageState extends State<RankingPage> {
   }
 }
 
+class RankingPageWithScroll extends StatefulWidget {
+  const RankingPageWithScroll({
+    super.key,
+    required this.initialTab,
+    required this.scrollToRank,
+  });
+
+  final int initialTab;
+  final int scrollToRank;
+
+  @override
+  State<RankingPageWithScroll> createState() => _RankingPageWithScrollState();
+}
+
+class _RankingPageWithScrollState extends State<RankingPageWithScroll>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  final ScrollController _scrollController = ScrollController();
+  static const double _itemHeight = 90.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(
+      length: 4,
+      vsync: this,
+      initialIndex: widget.initialTab,
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToMyRank();
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToMyRank() {
+    final targetOffset = (widget.scrollToRank - 1) * _itemHeight;
+    _scrollController.animateTo(
+      targetOffset,
+      duration: const Duration(milliseconds: 800),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _openProfile(RankingEntry entry) {
+    final profile = Profile(
+      name: entry.userName ?? entry.title,
+      handle: entry.handle ?? '@unknown',
+      bio: entry.subtitle,
+      url: (entry.handle ?? '').replaceFirst('@', ''),
+      totalLikes: 0,
+      level: 0,
+      rank: entry.position,
+      following: 0,
+      followers: 0,
+    );
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ProfileDetailPage(profile: profile),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          AppLocalizations.of(context)!.navRanking,
+          style: const TextStyle(color: Colors.black),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.tabPopularPosts),
+            Tab(text: AppLocalizations.of(context)!.tabLikes),
+            Tab(text: AppLocalizations.of(context)!.tabLevel),
+            Tab(text: AppLocalizations.of(context)!.tabFollowers),
+          ],
+          labelColor: Colors.black,
+          unselectedLabelColor: Colors.black54,
+          indicatorColor: Colors.black,
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _RankingListWithController(
+            entries: popularPosts,
+            onTap: _openProfile,
+            controller: widget.initialTab == 0 ? _scrollController : null,
+          ),
+          _RankingListWithController(
+            entries: totalLikesRanking,
+            onTap: _openProfile,
+            controller: widget.initialTab == 1 ? _scrollController : null,
+          ),
+          _RankingListWithController(
+            entries: levelRanking,
+            onTap: _openProfile,
+            controller: widget.initialTab == 2 ? _scrollController : null,
+          ),
+          _RankingListWithController(
+            entries: followerRanking,
+            onTap: _openProfile,
+            controller: widget.initialTab == 3 ? _scrollController : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RankingListWithController extends StatelessWidget {
+  const _RankingListWithController({
+    required this.entries,
+    this.onTap,
+    this.controller,
+  });
+
+  final List<RankingEntry> entries;
+  final ValueChanged<RankingEntry>? onTap;
+  final ScrollController? controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      controller: controller,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      itemBuilder: (context, index) {
+        final entry = entries[index];
+        return GestureDetector(
+          onTap: onTap != null ? () => onTap!(entry) : null,
+          child: MonoCard(
+            radius: 14,
+            child: Row(
+              children: [
+                _RankBadge(position: entry.position),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _localizedTitle(context, entry),
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        entry.subtitle,
+                        style: _MonoText.label,
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  _localizedMetric(context, entry.metric),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      itemCount: entries.length,
+    );
+  }
+}
+
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
@@ -725,6 +911,33 @@ class _ProfileScreenBodyState extends State<_ProfileScreenBody> {
     );
   }
 
+  void _openFollowingList() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const FollowListPage(initialTab: 0),
+      ),
+    );
+  }
+
+  void _openFollowersList() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const FollowListPage(initialTab: 1),
+      ),
+    );
+  }
+
+  void _openMyRanking() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => RankingPageWithScroll(
+          initialTab: 1,
+          scrollToRank: sampleProfile.rank,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -734,7 +947,12 @@ class _ProfileScreenBodyState extends State<_ProfileScreenBody> {
         children: [
           const _ProfileHeader(profile: sampleProfile),
           const SizedBox(height: 16),
-          const _ProfileStats(profile: sampleProfile),
+          _ProfileStats(
+            profile: sampleProfile,
+            onFollowingTap: _openFollowingList,
+            onFollowersTap: _openFollowersList,
+            onRankingTap: _openMyRanking,
+          ),
           const SizedBox(height: 16),
           Expanded(
             child: _LikedPostsSection(
@@ -1296,9 +1514,19 @@ class _ProfileEditDialogState extends State<_ProfileEditDialog> {
 }
 
 class _ProfileStats extends StatelessWidget {
-  const _ProfileStats({required this.profile});
+  const _ProfileStats({
+    required this.profile,
+    this.isOwnProfile = true,
+    this.onFollowingTap,
+    this.onFollowersTap,
+    this.onRankingTap,
+  });
 
   final Profile profile;
+  final bool isOwnProfile;
+  final VoidCallback? onFollowingTap;
+  final VoidCallback? onFollowersTap;
+  final VoidCallback? onRankingTap;
 
   @override
   Widget build(BuildContext context) {
@@ -1312,14 +1540,26 @@ class _ProfileStats extends StatelessWidget {
                 children: [
                   _StatBlock(label: AppLocalizations.of(context)!.totalLikes, value: '${profile.totalLikes}'),
                   _StatBlock(label: AppLocalizations.of(context)!.level, value: AppLocalizations.of(context)!.levelDisplay(profile.level)),
-                  _StatBlock(label: AppLocalizations.of(context)!.myRanking, value: '#${profile.rank}'),
+                  _StatBlock(
+                    label: AppLocalizations.of(context)!.myRanking,
+                    value: '#${profile.rank}',
+                    onTap: isOwnProfile ? onRankingTap : null,
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
-                  _StatBlock(label: AppLocalizations.of(context)!.following, value: '${profile.following}'),
-                  _StatBlock(label: AppLocalizations.of(context)!.followers, value: '${profile.followers}'),
+                  _StatBlock(
+                    label: AppLocalizations.of(context)!.following,
+                    value: '${profile.following}',
+                    onTap: isOwnProfile ? onFollowingTap : null,
+                  ),
+                  _StatBlock(
+                    label: AppLocalizations.of(context)!.followers,
+                    value: '${profile.followers}',
+                    onTap: isOwnProfile ? onFollowersTap : null,
+                  ),
                   _StatBlock(label: AppLocalizations.of(context)!.status, value: AppLocalizations.of(context)!.statusActive),
                 ],
               ),
