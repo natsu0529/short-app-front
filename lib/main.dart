@@ -724,6 +724,57 @@ class _RankBadge extends StatelessWidget {
   }
 }
 
+class _LevelIndicator extends StatelessWidget {
+  const _LevelIndicator({
+    required this.level,
+    required this.exp,
+    required this.maxExp,
+  });
+
+  final int level;
+  final int exp;
+  final int maxExp;
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = maxExp > 0 ? exp / maxExp : 0.0;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          'Lv.$level',
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: Colors.black,
+          ),
+        ),
+        const SizedBox(height: 4),
+        SizedBox(
+          width: 80,
+          height: 6,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.black, width: 1),
+              borderRadius: BorderRadius.circular(3),
+            ),
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: progress,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _ProfileHeader extends StatelessWidget {
   const _ProfileHeader({
     required this.profile,
@@ -789,6 +840,12 @@ class _ProfileHeader extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
+                    )
+                  else
+                    _LevelIndicator(
+                      level: profile.level,
+                      exp: profile.exp,
+                      maxExp: profile.maxExp,
                     ),
                 ],
               ),
@@ -1176,6 +1233,8 @@ class Profile {
     required this.rank,
     required this.following,
     required this.followers,
+    this.exp = 0,
+    this.maxExp = 100,
   });
 
   final String name;
@@ -1187,6 +1246,8 @@ class Profile {
   final int rank;
   final int following;
   final int followers;
+  final int exp;
+  final int maxExp;
 
   String get initials {
     final parts = name.trim().split(RegExp(r'\s+'));
@@ -1407,6 +1468,8 @@ const sampleProfile = Profile(
   rank: 18,
   following: 142,
   followers: 980,
+  exp: 65,
+  maxExp: 100,
 );
 
 const likedPosts = [
