@@ -540,7 +540,8 @@ class _MonochromeTabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return TabBar(
       tabs: tabs,
-      indicatorSize: TabBarIndicatorSize.label,
+      dividerColor: Colors.transparent,
+      indicatorSize: TabBarIndicatorSize.tab,
       indicator: const UnderlineTabIndicator(
         borderSide: BorderSide(color: Colors.black, width: 2),
         insets: EdgeInsets.symmetric(horizontal: 16),
