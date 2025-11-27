@@ -67,5 +67,13 @@
   "noPostsYet": "Пока нет записей",
   "noPosts": "Нет записей",
   "appTitle": "Short App",
-  "loginDescription": "Делитесь моментами со всем миром"
+  "loginDescription": "Делитесь моментами со всем миром",
+  "levelUp": "Повышение уровня! Вы достигли Lv.{level}!",
+  "@levelUp": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  }
 }

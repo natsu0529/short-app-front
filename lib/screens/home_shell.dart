@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../l10n/app_localizations.dart';
+import '../providers/auth_provider.dart';
 import 'timeline_screen.dart';
 import 'ranking_screen.dart';
 import 'profile_screen.dart';
 
-class HomeShell extends StatefulWidget {
+class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key});
 
   @override
-  State<HomeShell> createState() => _HomeShellState();
+  ConsumerState<HomeShell> createState() => _HomeShellState();
 }
 
-class _HomeShellState extends State<HomeShell> {
+class _HomeShellState extends ConsumerState<HomeShell> {
   int _currentIndex = 0;
 
   final _pages = const [
@@ -23,6 +25,22 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
+    // レベルアップイベントをリスンしてトーストを表示
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      if (next.levelUpEvent != null && next.levelUpEvent != previous?.levelUpEvent) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.levelUp(next.levelUpEvent!)),
+            backgroundColor: Colors.black,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        // イベントをクリア
+        ref.read(authProvider.notifier).clearLevelUpEvent();
+      }
+    });
 
     return Scaffold(
       backgroundColor: Colors.white,

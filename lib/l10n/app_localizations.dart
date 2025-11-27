@@ -513,6 +513,12 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'あなたの瞬間を世界とシェアしよう'**
   String get loginDescription;
+
+  /// No description provided for @levelUp.
+  ///
+  /// In ja, this message translates to:
+  /// **'レベルアップ！ Lv.{level} になりました！'**
+  String levelUp(int level);
 }
 
 class _AppLocalizationsDelegate

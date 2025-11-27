@@ -67,5 +67,13 @@
   "noPostsYet": "暂无帖子",
   "noPosts": "没有帖子",
   "appTitle": "Short App",
-  "loginDescription": "与世界分享你的精彩瞬间"
+  "loginDescription": "与世界分享你的精彩瞬间",
+  "levelUp": "升级了！达到 Lv.{level}！",
+  "@levelUp": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  }
 }

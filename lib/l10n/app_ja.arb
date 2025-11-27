@@ -130,5 +130,13 @@
   "noPostsYet": "投稿はまだありません",
   "noPosts": "投稿がありません",
   "appTitle": "Short App",
-  "loginDescription": "あなたの瞬間を世界とシェアしよう"
+  "loginDescription": "あなたの瞬間を世界とシェアしよう",
+  "levelUp": "レベルアップ！ Lv.{level} になりました！",
+  "@levelUp": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  }
 }

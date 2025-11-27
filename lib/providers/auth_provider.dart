@@ -8,12 +8,14 @@ class AuthState {
   final bool isLoading;
   final String? error;
   final bool isInitialized;
+  final int? levelUpEvent; // レベルアップ時に新しいレベルを保持
 
   const AuthState({
     this.user,
     this.isLoading = false,
     this.error,
     this.isInitialized = false,
+    this.levelUpEvent,
   });
 
   bool get isLoggedIn => user != null;
@@ -23,14 +25,17 @@ class AuthState {
     bool? isLoading,
     String? error,
     bool? isInitialized,
+    int? levelUpEvent,
     bool clearUser = false,
     bool clearError = false,
+    bool clearLevelUpEvent = false,
   }) {
     return AuthState(
       user: clearUser ? null : (user ?? this.user),
       isLoading: isLoading ?? this.isLoading,
       error: clearError ? null : (error ?? this.error),
       isInitialized: isInitialized ?? this.isInitialized,
+      levelUpEvent: clearLevelUpEvent ? null : (levelUpEvent ?? this.levelUpEvent),
     );
   }
 }
@@ -113,13 +118,23 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> refreshUser() async {
     try {
+      final previousLevel = state.user?.userLevel;
       final user = await _authService.refreshCurrentUser();
       if (user != null) {
-        state = state.copyWith(user: user);
+        // レベルアップを検知
+        if (previousLevel != null && user.userLevel > previousLevel) {
+          state = state.copyWith(user: user, levelUpEvent: user.userLevel);
+        } else {
+          state = state.copyWith(user: user);
+        }
       }
     } catch (e) {
       // Silently fail on refresh
     }
+  }
+
+  void clearLevelUpEvent() {
+    state = state.copyWith(clearLevelUpEvent: true);
   }
 
   void clearError() {

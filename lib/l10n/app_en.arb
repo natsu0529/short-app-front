@@ -67,5 +67,13 @@
   "noPostsYet": "No posts yet",
   "noPosts": "No posts",
   "appTitle": "Short App",
-  "loginDescription": "Share your moments with the world"
+  "loginDescription": "Share your moments with the world",
+  "levelUp": "Level Up! You reached Lv.{level}!",
+  "@levelUp": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  }
 }

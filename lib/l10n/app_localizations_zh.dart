@@ -229,4 +229,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get loginDescription => '与世界分享你的精彩瞬间';
+
+  @override
+  String levelUp(int level) {
+    return '升级了！达到 Lv.$level！';
+  }
 }

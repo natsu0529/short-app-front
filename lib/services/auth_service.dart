@@ -127,6 +127,12 @@ class AuthService {
     required String displayName,
   }) async {
     try {
+      if (kDebugMode) {
+        print('Authenticating with backend...');
+        print('Email: $email');
+        print('Display Name: $displayName');
+        print('ID Token (first 50 chars): ${idToken.substring(0, 50)}...');
+      }
       // Send Google ID token to backend
       final response = await _apiClient.post<Map<String, dynamic>>(
         '/api/auth/google/',
@@ -136,6 +142,9 @@ class AuthService {
           'display_name': displayName,
         },
       );
+      if (kDebugMode) {
+        print('Backend response: ${response.data}');
+      }
 
       final token = response.data!['token'] as String;
       _apiClient.setAuthToken(token);

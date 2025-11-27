@@ -242,6 +242,54 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen>
     }
   }
 
+  Widget _buildPostList(TimelineState state, int tabIndex) {
+    final tab = TimelineTab.values[tabIndex];
+
+    // 現在のタブと違う場合はローディング表示
+    if (state.isLoading && state.currentTab == tab) {
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.black),
+      );
+    }
+
+    // このタブのデータがまだ読み込まれていない場合
+    if (state.currentTab != tab) {
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.black),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => ref
+          .read(timelineProvider.notifier)
+          .loadTimeline(tab: tab, refresh: true),
+      color: Colors.black,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        itemCount: state.posts.length + (state.isLoadingMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == state.posts.length) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: CircularProgressIndicator(color: Colors.black),
+              ),
+            );
+          }
+
+          final post = state.posts[index];
+          return PostCard(
+            post: post,
+            onTap: () => _openProfileFromPost(post),
+            onLikeTap: () => _handleLike(post),
+            source: _getSourceLabel(tabIndex),
+          );
+        },
+        separatorBuilder: (context, index) => const SizedBox(height: 12),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(timelineProvider);
@@ -262,43 +310,14 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen>
             ),
             const SizedBox(height: 12),
             Expanded(
-              child: state.isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(color: Colors.black),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: () => ref
-                          .read(timelineProvider.notifier)
-                          .loadTimeline(refresh: true),
-                      color: Colors.black,
-                      child: ListView.separated(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 8),
-                        itemCount:
-                            state.posts.length + (state.isLoadingMore ? 1 : 0),
-                        itemBuilder: (context, index) {
-                          if (index == state.posts.length) {
-                            return const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(16),
-                                child: CircularProgressIndicator(
-                                    color: Colors.black),
-                              ),
-                            );
-                          }
-
-                          final post = state.posts[index];
-                          return PostCard(
-                            post: post,
-                            onTap: () => _openProfileFromPost(post),
-                            onLikeTap: () => _handleLike(post),
-                            source: _getSourceLabel(_tabController.index),
-                          );
-                        },
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 12),
-                      ),
-                    ),
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildPostList(state, 0),
+                  _buildPostList(state, 1),
+                  _buildPostList(state, 2),
+                ],
+              ),
             ),
           ],
         ),

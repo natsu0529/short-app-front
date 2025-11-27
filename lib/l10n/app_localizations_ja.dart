@@ -229,4 +229,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get loginDescription => 'あなたの瞬間を世界とシェアしよう';
+
+  @override
+  String levelUp(int level) {
+    return 'レベルアップ！ Lv.$level になりました！';
+  }
 }

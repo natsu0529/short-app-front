@@ -67,5 +67,13 @@
   "noPostsYet": "Aún no hay publicaciones",
   "noPosts": "Sin publicaciones",
   "appTitle": "Short App",
-  "loginDescription": "Comparte tus momentos con el mundo"
+  "loginDescription": "Comparte tus momentos con el mundo",
+  "levelUp": "¡Subiste de nivel! ¡Alcanzaste el Lv.{level}!",
+  "@levelUp": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -229,4 +229,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginDescription => 'Share your moments with the world';
+
+  @override
+  String levelUp(int level) {
+    return 'Level Up! You reached Lv.$level!';
+  }
 }
