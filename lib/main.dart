@@ -5,8 +5,26 @@ void main() {
   runApp(const ShortTextApp());
 }
 
-class ShortTextApp extends StatelessWidget {
+class ShortTextApp extends StatefulWidget {
   const ShortTextApp({super.key});
+
+  static void setLocale(BuildContext context, Locale locale) {
+    final state = context.findAncestorStateOfType<_ShortTextAppState>();
+    state?.setLocale(locale);
+  }
+
+  @override
+  State<ShortTextApp> createState() => _ShortTextAppState();
+}
+
+class _ShortTextAppState extends State<ShortTextApp> {
+  Locale? _locale;
+
+  void setLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +33,7 @@ class ShortTextApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      locale: _locale,
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
         colorScheme: const ColorScheme.light(
@@ -493,14 +512,11 @@ class FollowListPage extends StatelessWidget {
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
           elevation: 0,
-          bottom: TabBar(
+          bottom: _MonochromeTabBar(
             tabs: [
               Tab(text: AppLocalizations.of(context)!.following),
               Tab(text: AppLocalizations.of(context)!.followers),
             ],
-            labelColor: Colors.black,
-            unselectedLabelColor: Colors.black54,
-            indicatorColor: Colors.black,
           ),
         ),
         body: const TabBarView(
@@ -752,7 +768,7 @@ class _RankingPageWithScrollState extends State<RankingPageWithScroll>
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
-        bottom: TabBar(
+        bottom: _MonochromeTabBar(
           controller: _tabController,
           tabs: [
             Tab(text: AppLocalizations.of(context)!.tabPopularPosts),
@@ -760,9 +776,6 @@ class _RankingPageWithScrollState extends State<RankingPageWithScroll>
             Tab(text: AppLocalizations.of(context)!.tabLevel),
             Tab(text: AppLocalizations.of(context)!.tabFollowers),
           ],
-          labelColor: Colors.black,
-          unselectedLabelColor: Colors.black54,
-          indicatorColor: Colors.black,
         ),
       ),
       body: TabBarView(
@@ -968,14 +981,19 @@ class _ProfileScreenBodyState extends State<_ProfileScreenBody> {
   }
 }
 
-class _MonochromeTabBar extends StatelessWidget {
-  const _MonochromeTabBar({required this.tabs});
+class _MonochromeTabBar extends StatelessWidget implements PreferredSizeWidget {
+  const _MonochromeTabBar({required this.tabs, this.controller});
 
   final List<Widget> tabs;
+  final TabController? controller;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
   Widget build(BuildContext context) {
     return TabBar(
+      controller: controller,
       tabs: tabs,
       dividerColor: Colors.transparent,
       indicatorSize: TabBarIndicatorSize.tab,
@@ -1316,18 +1334,22 @@ class _ProfileHeader extends StatelessWidget {
         ),
         if (showEdit)
           Positioned(
-            right: 12,
-            bottom: -15,
+            right: 0,
+            bottom: -24,
             child: GestureDetector(
               onTap: () => _openEditDialog(context),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.black, width: 1.4),
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.black, width: 1.4),
+                  ),
+                  child: const Icon(Icons.edit, size: 18, color: Colors.black),
                 ),
-                child: const Icon(Icons.edit, size: 18, color: Colors.black),
               ),
             ),
           ),
@@ -1568,6 +1590,7 @@ class _ProfileStats extends StatelessWidget {
                     value: '${profile.followers}',
                     onTap: isOwnProfile ? onFollowersTap : null,
                   ),
+                  if (isOwnProfile) const _LanguageStatBlock(),
                 ],
               ),
             ],
@@ -1621,6 +1644,96 @@ class _StatBlock extends StatelessWidget {
               child: content,
             )
           : content,
+    );
+  }
+}
+
+class _LanguageStatBlock extends StatelessWidget {
+  const _LanguageStatBlock();
+
+  static const _languages = [
+    ('ja', '日本語'),
+    ('en', 'English'),
+    ('zh', '中文'),
+    ('es', 'Español'),
+    ('fr', 'Français'),
+    ('ru', 'Русский'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _showLanguageDialog(context),
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Text(
+              'Language',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              _getCurrentLanguageCode(context),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: Colors.black,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getCurrentLanguageCode(BuildContext context) {
+    final locale = Localizations.localeOf(context);
+    return locale.languageCode.toUpperCase();
+  }
+
+  void _showLanguageDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: Colors.white,
+        title: const Text(
+          'Language',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: Colors.black,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: _languages.map((lang) {
+            final isSelected =
+                Localizations.localeOf(dialogContext).languageCode == lang.$1;
+            return ListTile(
+              title: Text(
+                lang.$2,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                  color: Colors.black,
+                ),
+              ),
+              trailing: isSelected
+                  ? const Icon(Icons.check, color: Colors.black, size: 20)
+                  : null,
+              onTap: () {
+                ShortTextApp.setLocale(context, Locale(lang.$1));
+                Navigator.of(dialogContext).pop();
+              },
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 }
