@@ -271,7 +271,7 @@ abstract class AppLocalizations {
   /// No description provided for @myRanking.
   ///
   /// In ja, this message translates to:
-  /// **'My ランキング'**
+  /// **'ランキング'**
   String get myRanking;
 
   /// No description provided for @following.

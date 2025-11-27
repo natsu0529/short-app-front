@@ -92,7 +92,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get level => 'レベル';
 
   @override
-  String get myRanking => 'My ランキング';
+  String get myRanking => 'ランキング';
 
   @override
   String get following => 'フォロー';
