@@ -35,16 +35,20 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
     setState(() => _isLoading = true);
     try {
       final followService = ref.read(followServiceProvider);
+      print('Loading follow data for userId: ${widget.userId}');
       final results = await Future.wait([
         followService.getFollowing(widget.userId),
         followService.getFollowers(widget.userId),
       ]);
+      print('Following count: ${results[0].length}');
+      print('Followers count: ${results[1].length}');
       setState(() {
         _following = results[0];
         _followers = results[1];
         _isLoading = false;
       });
     } catch (e) {
+      print('Error loading follow data: $e');
       setState(() => _isLoading = false);
     }
   }
@@ -86,8 +90,16 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
               )
             : TabBarView(
                 children: [
-                  _FollowList(users: _following, onTap: _openProfile),
-                  _FollowList(users: _followers, onTap: _openProfile),
+                  _FollowList(
+                    users: _following,
+                    onTap: _openProfile,
+                    emptyMessage: l10n.noFollowing,
+                  ),
+                  _FollowList(
+                    users: _followers,
+                    onTap: _openProfile,
+                    emptyMessage: l10n.noFollowers,
+                  ),
                 ],
               ),
       ),
@@ -98,10 +110,12 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
 class _FollowList extends StatelessWidget {
   const _FollowList({
     required this.users,
+    required this.emptyMessage,
     this.onTap,
   });
 
   final List<User> users;
+  final String emptyMessage;
   final ValueChanged<User>? onTap;
 
   @override
@@ -109,7 +123,7 @@ class _FollowList extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     if (users.isEmpty) {
-      return Center(child: Text(l10n.noPosts));
+      return Center(child: Text(emptyMessage));
     }
 
     return ListView.separated(

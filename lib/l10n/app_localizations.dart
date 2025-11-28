@@ -519,6 +519,18 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'レベルアップ！ Lv.{level} になりました！'**
   String levelUp(int level);
+
+  /// No description provided for @noFollowing.
+  ///
+  /// In ja, this message translates to:
+  /// **'フォローしたユーザーはいません'**
+  String get noFollowing;
+
+  /// No description provided for @noFollowers.
+  ///
+  /// In ja, this message translates to:
+  /// **'フォロワーはいません'**
+  String get noFollowers;
 }
 
 class _AppLocalizationsDelegate

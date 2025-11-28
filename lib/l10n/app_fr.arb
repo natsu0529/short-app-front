@@ -75,5 +75,7 @@
         "type": "int"
       }
     }
-  }
+  },
+  "noFollowing": "Aucun abonnement",
+  "noFollowers": "Aucun abonné"
 }

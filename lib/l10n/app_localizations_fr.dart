@@ -234,4 +234,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String levelUp(int level) {
     return 'Niveau supérieur ! Vous avez atteint le Nv.$level !';
   }
+
+  @override
+  String get noFollowing => 'Aucun abonnement';
+
+  @override
+  String get noFollowers => 'Aucun abonné';
 }

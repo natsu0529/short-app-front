@@ -78,7 +78,7 @@ class AuthService {
       );
 
       final token = response.data!['token'] as String;
-      _apiClient.setAuthToken(token);
+      await _apiClient.setAuthToken(token);
 
       final userResponse = await _apiClient.get<Map<String, dynamic>>(
         '/api/users/me/',
@@ -147,7 +147,7 @@ class AuthService {
       }
 
       final token = response.data!['token'] as String;
-      _apiClient.setAuthToken(token);
+      await _apiClient.setAuthToken(token);
 
       final userResponse = await _apiClient.get<Map<String, dynamic>>(
         '/api/users/me/',
@@ -163,7 +163,7 @@ class AuthService {
 
   Future<void> signOut() async {
     await _googleSignIn.signOut();
-    _apiClient.setAuthToken(null);
+    await _apiClient.setAuthToken(null);
     _currentUser = null;
   }
 
@@ -187,7 +187,7 @@ class AuthService {
     _currentUser = user;
   }
 
-  void setAuthToken(String? token) {
-    _apiClient.setAuthToken(token);
+  Future<void> setAuthToken(String? token) async {
+    await _apiClient.setAuthToken(token);
   }
 }

@@ -75,5 +75,7 @@
         "type": "int"
       }
     }
-  }
+  },
+  "noFollowing": "Not following anyone",
+  "noFollowers": "No followers yet"
 }

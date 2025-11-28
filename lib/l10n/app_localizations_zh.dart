@@ -234,4 +234,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String levelUp(int level) {
     return '升级了！达到 Lv.$level！';
   }
+
+  @override
+  String get noFollowing => '还没有关注任何人';
+
+  @override
+  String get noFollowers => '还没有粉丝';
 }

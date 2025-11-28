@@ -254,19 +254,37 @@ class _ProfileStats extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return MonoCard(
-      child: Row(
+      child: Column(
         children: [
-          _StatBlock(
-            label: l10n.totalLikes,
-            value: '${user.stats?.totalLikesReceived ?? 0}',
+          Row(
+            children: [
+              _StatBlock(
+                label: l10n.totalLikes,
+                value: '${user.stats?.totalLikesReceived ?? 0}',
+              ),
+              _StatBlock(
+                label: l10n.level,
+                value: l10n.levelDisplay(user.userLevel),
+              ),
+              _StatBlock(
+                label: l10n.myRanking,
+                value: user.rank != null ? '#${user.rank}' : '-',
+              ),
+            ],
           ),
-          _StatBlock(
-            label: l10n.level,
-            value: l10n.levelDisplay(user.userLevel),
-          ),
-          _StatBlock(
-            label: l10n.followers,
-            value: '${user.stats?.followerCount ?? 0}',
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _StatBlock(
+                label: l10n.following,
+                value: '${user.stats?.followingCount ?? 0}',
+              ),
+              _StatBlock(
+                label: l10n.followers,
+                value: '${user.stats?.followerCount ?? 0}',
+              ),
+              const Spacer(),
+            ],
           ),
         ],
       ),

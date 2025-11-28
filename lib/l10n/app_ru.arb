@@ -75,5 +75,7 @@
         "type": "int"
       }
     }
-  }
+  },
+  "noFollowing": "Нет подписок",
+  "noFollowers": "Нет подписчиков"
 }

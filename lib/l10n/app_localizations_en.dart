@@ -234,4 +234,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String levelUp(int level) {
     return 'Level Up! You reached Lv.$level!';
   }
+
+  @override
+  String get noFollowing => 'Not following anyone';
+
+  @override
+  String get noFollowers => 'No followers yet';
 }

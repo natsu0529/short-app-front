@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../api_config.dart';
 
 class ApiClient {
@@ -7,6 +8,9 @@ class ApiClient {
   late final Dio _dio;
   String? _authToken;
   String? _baseUrl;
+
+  static const _tokenKey = 'auth_token';
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   ApiClient._();
 
@@ -17,6 +21,13 @@ class ApiClient {
 
   Future<void> initialize() async {
     _baseUrl = await ApiConfig.resolveBaseUrl();
+
+    // 保存されたトークンを読み込む
+    _authToken = await _secureStorage.read(key: _tokenKey);
+    if (kDebugMode && _authToken != null) {
+      print('Loaded saved auth token');
+    }
+
     _dio = Dio(
       BaseOptions(
         baseUrl: _baseUrl!,
@@ -57,8 +68,13 @@ class ApiClient {
     );
   }
 
-  void setAuthToken(String? token) {
+  Future<void> setAuthToken(String? token) async {
     _authToken = token;
+    if (token != null) {
+      await _secureStorage.write(key: _tokenKey, value: token);
+    } else {
+      await _secureStorage.delete(key: _tokenKey);
+    }
   }
 
   String? get authToken => _authToken;

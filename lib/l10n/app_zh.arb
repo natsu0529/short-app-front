@@ -75,5 +75,7 @@
         "type": "int"
       }
     }
-  }
+  },
+  "noFollowing": "还没有关注任何人",
+  "noFollowers": "还没有粉丝"
 }

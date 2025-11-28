@@ -234,4 +234,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String levelUp(int level) {
     return '¡Subiste de nivel! ¡Alcanzaste el Lv.$level!';
   }
+
+  @override
+  String get noFollowing => 'No sigues a nadie';
+
+  @override
+  String get noFollowers => 'Aún no tienes seguidores';
 }

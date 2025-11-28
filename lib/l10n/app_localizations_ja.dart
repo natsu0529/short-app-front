@@ -234,4 +234,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String levelUp(int level) {
     return 'レベルアップ！ Lv.$level になりました！';
   }
+
+  @override
+  String get noFollowing => 'フォローしたユーザーはいません';
+
+  @override
+  String get noFollowers => 'フォロワーはいません';
 }

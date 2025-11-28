@@ -234,4 +234,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String levelUp(int level) {
     return 'Повышение уровня! Вы достигли Lv.$level!';
   }
+
+  @override
+  String get noFollowing => 'Нет подписок';
+
+  @override
+  String get noFollowers => 'Нет подписчиков';
 }
