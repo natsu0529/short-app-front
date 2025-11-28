@@ -14,42 +14,64 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 class NotificationService {
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  FirebaseMessaging? _messaging;
   final ApiClient _apiClient;
+  bool _isInitialized = false;
 
   NotificationService(this._apiClient);
 
   /// FCMを初期化
   Future<void> initialize() async {
-    // バックグラウンドハンドラを設定
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    try {
+      // Firebaseが初期化されているか確認
+      if (Firebase.apps.isEmpty) {
+        if (kDebugMode) {
+          print('Firebase not initialized, skipping notification setup');
+        }
+        return;
+      }
 
-    // 通知権限をリクエスト
-    await _requestPermission();
+      _messaging = FirebaseMessaging.instance;
 
-    // フォアグラウンドでの通知表示設定（iOS）
-    await _messaging.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+      // バックグラウンドハンドラを設定
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    // フォアグラウンドメッセージのリスナー
-    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+      // 通知権限をリクエスト
+      await _requestPermission();
 
-    // 通知タップ時のハンドラ
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
+      // フォアグラウンドでの通知表示設定（iOS）
+      await _messaging!.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 
-    // アプリが終了状態から通知で起動した場合
-    final initialMessage = await _messaging.getInitialMessage();
-    if (initialMessage != null) {
-      _handleNotificationTap(initialMessage);
+      // フォアグラウンドメッセージのリスナー
+      FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+
+      // 通知タップ時のハンドラ
+      FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
+
+      // アプリが終了状態から通知で起動した場合
+      final initialMessage = await _messaging!.getInitialMessage();
+      if (initialMessage != null) {
+        _handleNotificationTap(initialMessage);
+      }
+
+      _isInitialized = true;
+      if (kDebugMode) {
+        print('Notification service initialized successfully');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to initialize notification service: $e');
+      }
     }
   }
 
   /// 通知権限をリクエスト
   Future<bool> _requestPermission() async {
-    final settings = await _messaging.requestPermission(
+    final settings = await _messaging!.requestPermission(
       alert: true,
       badge: true,
       sound: true,
@@ -68,12 +90,19 @@ class NotificationService {
 
   /// デバイストークンを取得してバックエンドに登録
   Future<void> registerDeviceToken() async {
+    if (_messaging == null || !_isInitialized) {
+      if (kDebugMode) {
+        print('Notification service not initialized, skipping token registration');
+      }
+      return;
+    }
+
     try {
       String? token;
 
       if (Platform.isIOS) {
         // iOSではAPNsトークンが必要
-        final apnsToken = await _messaging.getAPNSToken();
+        final apnsToken = await _messaging!.getAPNSToken();
         if (apnsToken == null) {
           if (kDebugMode) {
             print('APNs token not available yet');
@@ -82,7 +111,7 @@ class NotificationService {
         }
       }
 
-      token = await _messaging.getToken();
+      token = await _messaging!.getToken();
 
       if (token != null) {
         await _sendTokenToServer(token);
@@ -92,7 +121,7 @@ class NotificationService {
       }
 
       // トークンが更新された場合のリスナー
-      _messaging.onTokenRefresh.listen(_sendTokenToServer);
+      _messaging!.onTokenRefresh.listen(_sendTokenToServer);
     } catch (e) {
       if (kDebugMode) {
         print('Error registering device token: $e');
@@ -120,8 +149,12 @@ class NotificationService {
 
   /// デバイストークンを削除（ログアウト時）
   Future<void> unregisterDeviceToken() async {
+    if (_messaging == null) {
+      return;
+    }
+
     try {
-      final token = await _messaging.getToken();
+      final token = await _messaging!.getToken();
       if (token != null) {
         await _apiClient.delete<void>(
           '/api/device-token/',

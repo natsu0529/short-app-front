@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -12,8 +13,15 @@ void main() async {
   // Load environment variables
   await dotenv.load(fileName: '.env');
 
-  // Initialize Firebase
-  await Firebase.initializeApp();
+  // Initialize Firebase (シミュレーターでは失敗する可能性あり)
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    if (kDebugMode) {
+      print('Firebase initialization failed: $e');
+      print('Push notifications will not be available');
+    }
+  }
 
   // Initialize API client
   await ApiClient.instance.initialize();

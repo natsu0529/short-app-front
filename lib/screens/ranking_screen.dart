@@ -289,13 +289,18 @@ class _UserRankingList extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     if (users.isEmpty) {
-      return Center(child: Text(l10n.noPosts));
+      return Container(
+        color: Colors.white,
+        child: Center(child: Text(l10n.noPosts)),
+      );
     }
 
-    return ListView.separated(
-      controller: scrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      itemCount: users.length,
+    return Container(
+      color: Colors.white,
+      child: ListView.separated(
+        controller: scrollController,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        itemCount: users.length,
       itemBuilder: (context, index) {
         final user = users[index];
         return GestureDetector(
@@ -307,23 +312,13 @@ class _UserRankingList extends StatelessWidget {
                 RankBadge(position: index + 1),
                 const SizedBox(width: 14),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        user.userName,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        user.handle,
-                        style: MonoText.label,
-                      ),
-                    ],
+                  child: Text(
+                    user.userName,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
                 Text(
@@ -338,8 +333,9 @@ class _UserRankingList extends StatelessWidget {
             ),
           ),
         );
-      },
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
+        },
+        separatorBuilder: (context, index) => const SizedBox(height: 12),
+      ),
     );
   }
 }

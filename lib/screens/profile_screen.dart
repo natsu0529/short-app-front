@@ -531,7 +531,7 @@ class _LikedPostsSection extends StatelessWidget {
   }
 }
 
-class _ProfileEditDialog extends StatelessWidget {
+class _ProfileEditDialog extends StatefulWidget {
   const _ProfileEditDialog({
     required this.nameController,
     required this.bioController,
@@ -543,8 +543,15 @@ class _ProfileEditDialog extends StatelessWidget {
   final TextEditingController nameController;
   final TextEditingController bioController;
   final TextEditingController urlController;
-  final VoidCallback onSave;
-  final VoidCallback onLogout;
+  final Future<void> Function() onSave;
+  final Future<void> Function() onLogout;
+
+  @override
+  State<_ProfileEditDialog> createState() => _ProfileEditDialogState();
+}
+
+class _ProfileEditDialogState extends State<_ProfileEditDialog> {
+  bool _isSaving = false;
 
   @override
   Widget build(BuildContext context) {
@@ -581,11 +588,11 @@ class _ProfileEditDialog extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _buildTextField(l10n.name, nameController),
+                    _buildTextField(l10n.name, widget.nameController),
                     const SizedBox(height: 12),
-                    _buildTextField(l10n.bio, bioController, maxLines: 3),
+                    _buildTextField(l10n.bio, widget.bioController, maxLines: 3),
                     const SizedBox(height: 12),
-                    _buildTextField(l10n.url, urlController),
+                    _buildTextField(l10n.url, widget.urlController),
                     const SizedBox(height: 20),
                     Row(
                       children: [
@@ -613,12 +620,29 @@ class _ProfileEditDialog extends StatelessWidget {
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
-                            onPressed: onSave,
-                            child: Text(
-                              l10n.save,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w800),
-                            ),
+                            onPressed: _isSaving
+                                ? null
+                                : () async {
+                                    setState(() => _isSaving = true);
+                                    await widget.onSave();
+                                    if (mounted) {
+                                      setState(() => _isSaving = false);
+                                    }
+                                  },
+                            child: _isSaving
+                                ? const SizedBox(
+                                    height: 16,
+                                    width: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text(
+                                    l10n.save,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w800),
+                                  ),
                           ),
                         ),
                       ],
@@ -631,7 +655,7 @@ class _ProfileEditDialog extends StatelessWidget {
                           foregroundColor: Colors.red,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
-                        onPressed: onLogout,
+                        onPressed: _isSaving ? null : () => widget.onLogout(),
                         child: Text(
                           l10n.logout,
                           style: const TextStyle(fontWeight: FontWeight.w700),
