@@ -81,6 +81,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
+  void _goToMyRanking() {
+    ref.read(navigationProvider.notifier).goToRankingWithScroll();
+  }
+
   void _openEditDialog() {
     final currentUser = ref.read(currentUserProvider);
     if (currentUser == null) return;
@@ -155,6 +159,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             user: currentUser,
             onFollowingTap: _openFollowingList,
             onFollowersTap: _openFollowersList,
+            onRankingTap: _goToMyRanking,
           ),
           const SizedBox(height: 16),
           Expanded(
@@ -271,11 +276,13 @@ class _ProfileStats extends StatelessWidget {
     required this.user,
     this.onFollowingTap,
     this.onFollowersTap,
+    this.onRankingTap,
   });
 
   final User user;
   final VoidCallback? onFollowingTap;
   final VoidCallback? onFollowersTap;
+  final VoidCallback? onRankingTap;
 
   @override
   Widget build(BuildContext context) {
@@ -296,6 +303,7 @@ class _ProfileStats extends StatelessWidget {
               _StatBlock(
                 label: l10n.myRanking,
                 value: user.rank != null ? '#${user.rank}' : '-',
+                onTap: onRankingTap,
               ),
             ],
           ),

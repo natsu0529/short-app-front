@@ -46,11 +46,17 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen>
   }
 
   void _openProfileFromPost(Post post) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ProfileDetailScreen(userId: post.user.userId),
-      ),
-    );
+    final currentUser = ref.read(currentUserProvider);
+    if (currentUser != null && currentUser.userId == post.user.userId) {
+      // 自分の場合はプロフィールタブに遷移
+      ref.read(navigationProvider.notifier).setIndex(2);
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ProfileDetailScreen(userId: post.user.userId),
+        ),
+      );
+    }
   }
 
   void _handleLike(Post post) {

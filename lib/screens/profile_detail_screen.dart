@@ -274,16 +274,19 @@ class _ProfileStats extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _StatBlock(
                 label: l10n.following,
                 value: '${user.stats?.followingCount ?? 0}',
+                expanded: false,
               ),
+              const SizedBox(width: 32),
               _StatBlock(
                 label: l10n.followers,
                 value: '${user.stats?.followerCount ?? 0}',
+                expanded: false,
               ),
-              const Spacer(),
             ],
           ),
         ],
@@ -296,35 +299,40 @@ class _StatBlock extends StatelessWidget {
   const _StatBlock({
     required this.label,
     required this.value,
+    this.expanded = true,
   });
 
   final String label;
   final String value;
+  final bool expanded;
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.black,
-            ),
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.black,
           ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: Colors.black,
-            ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: Colors.black,
           ),
-        ],
-      ),
+        ),
+      ],
     );
+
+    if (expanded) {
+      return Expanded(child: content);
+    }
+    return SizedBox(width: 80, child: content);
   }
 }

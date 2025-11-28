@@ -1,30 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../l10n/app_localizations.dart';
-import '../providers/auth_provider.dart';
+import '../providers/providers.dart';
 import 'timeline_screen.dart';
 import 'ranking_screen.dart';
 import 'profile_screen.dart';
 
-class HomeShell extends ConsumerStatefulWidget {
+class HomeShell extends ConsumerWidget {
   const HomeShell({super.key});
 
-  @override
-  ConsumerState<HomeShell> createState() => _HomeShellState();
-}
-
-class _HomeShellState extends ConsumerState<HomeShell> {
-  int _currentIndex = 0;
-
-  final _pages = const [
+  static const _pages = [
     TimelineScreen(),
     RankingScreen(),
     ProfileScreen(),
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final navState = ref.watch(navigationProvider);
 
     // レベルアップイベントをリスンしてトーストを表示
     ref.listen<AuthState>(authProvider, (previous, next) {
@@ -46,13 +40,13 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: IndexedStack(
-          index: _currentIndex,
+          index: navState.currentIndex,
           children: _pages,
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        currentIndex: navState.currentIndex,
+        onTap: (index) => ref.read(navigationProvider.notifier).setIndex(index),
         type: BottomNavigationBarType.fixed,
         selectedIconTheme: const IconThemeData(size: 28, color: Colors.black),
         unselectedIconTheme: const IconThemeData(size: 24, color: Colors.black),
