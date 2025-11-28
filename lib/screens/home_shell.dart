@@ -31,20 +31,28 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   Future<void> _initialize() async {
     // 認証状態を復元
     await ref.read(authProvider.notifier).initialize();
-    // 通知を初期化
-    await _initializeNotifications();
+    // 通知を初期化（失敗しても続行）
+    try {
+      await _initializeNotifications();
+    } catch (e) {
+      // 通知初期化失敗は無視
+    }
   }
 
   Future<void> _initializeNotifications() async {
-    final notificationService = ref.read(notificationServiceProvider);
-    await notificationService.initialize();
+    try {
+      final notificationService = ref.read(notificationServiceProvider);
+      await notificationService.initialize();
 
-    // ログイン済みならトークンを登録
-    final authState = ref.read(authProvider);
-    if (authState.isLoggedIn) {
-      await notificationService.registerDeviceToken();
+      // ログイン済みならトークンを登録
+      final authState = ref.read(authProvider);
+      if (authState.isLoggedIn) {
+        await notificationService.registerDeviceToken();
+      }
+      _notificationInitialized = true;
+    } catch (e) {
+      // 通知サービスの初期化に失敗
     }
-    _notificationInitialized = true;
   }
 
   @override

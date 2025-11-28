@@ -142,6 +142,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final authState = ref.watch(authProvider);
     final profileState = ref.watch(profileProvider);
 
+    // Show loading while initializing auth
+    if (!authState.isInitialized) {
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.black),
+      );
+    }
+
     // Show login screen if not logged in
     if (!authState.isLoggedIn) {
       return const LoginScreen(embedded: true);
