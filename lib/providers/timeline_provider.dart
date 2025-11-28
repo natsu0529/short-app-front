@@ -149,8 +149,14 @@ class TimelineNotifier extends StateNotifier<TimelineState> {
 
   void addNewPost(Post post) {
     if (state.currentTab == TimelineTab.latest) {
+      // 最新タブ: 一番上に追加
       state = state.copyWith(
         posts: [post, ...state.posts],
+      );
+    } else if (state.currentTab == TimelineTab.popular) {
+      // トレンドタブ: いいね0なので一番下に追加
+      state = state.copyWith(
+        posts: [...state.posts, post],
       );
     }
   }
