@@ -6,22 +6,48 @@ import 'timeline_screen.dart';
 import 'ranking_screen.dart';
 import 'profile_screen.dart';
 
-class HomeShell extends ConsumerWidget {
+class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key});
 
+  @override
+  ConsumerState<HomeShell> createState() => _HomeShellState();
+}
+
+class _HomeShellState extends ConsumerState<HomeShell> {
   static const _pages = [
     TimelineScreen(),
     RankingScreen(),
     ProfileScreen(),
   ];
 
+  bool _notificationInitialized = false;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    _initializeNotifications();
+  }
+
+  Future<void> _initializeNotifications() async {
+    final notificationService = ref.read(notificationServiceProvider);
+    await notificationService.initialize();
+
+    // ログイン済みならトークンを登録
+    final authState = ref.read(authProvider);
+    if (authState.isLoggedIn) {
+      await notificationService.registerDeviceToken();
+    }
+    _notificationInitialized = true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final navState = ref.watch(navigationProvider);
 
-    // レベルアップイベントをリスンしてトーストを表示
+    // ログイン状態の変化を監視
     ref.listen<AuthState>(authProvider, (previous, next) {
+      // レベルアップイベント
       if (next.levelUpEvent != null && next.levelUpEvent != previous?.levelUpEvent) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -31,8 +57,21 @@ class HomeShell extends ConsumerWidget {
             duration: const Duration(seconds: 3),
           ),
         );
-        // イベントをクリア
         ref.read(authProvider.notifier).clearLevelUpEvent();
+      }
+
+      // ログイン時にトークン登録
+      if (_notificationInitialized &&
+          previous?.isLoggedIn == false &&
+          next.isLoggedIn == true) {
+        ref.read(notificationServiceProvider).registerDeviceToken();
+      }
+
+      // ログアウト時にトークン削除
+      if (_notificationInitialized &&
+          previous?.isLoggedIn == true &&
+          next.isLoggedIn == false) {
+        ref.read(notificationServiceProvider).unregisterDeviceToken();
       }
     });
 

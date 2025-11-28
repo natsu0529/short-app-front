@@ -7,3 +7,4 @@ export 'like_service.dart';
 export 'follow_service.dart';
 export 'search_service.dart';
 export 'ranking_service.dart';
+export 'notification_service.dart';

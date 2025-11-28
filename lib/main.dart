@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'l10n/app_localizations.dart';
 import 'services/services.dart';
 import 'screens/screens.dart';
@@ -10,6 +11,9 @@ void main() async {
 
   // Load environment variables
   await dotenv.load(fileName: '.env');
+
+  // Initialize Firebase
+  await Firebase.initializeApp();
 
   // Initialize API client
   await ApiClient.instance.initialize();

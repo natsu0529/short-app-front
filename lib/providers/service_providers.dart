@@ -44,3 +44,8 @@ final rankingServiceProvider = Provider<RankingService>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return RankingService(apiClient);
 });
+
+final notificationServiceProvider = Provider<NotificationService>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return NotificationService(apiClient);
+});
