@@ -25,7 +25,14 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   @override
   void initState() {
     super.initState();
-    _initializeNotifications();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    // 認証状態を復元
+    await ref.read(authProvider.notifier).initialize();
+    // 通知を初期化
+    await _initializeNotifications();
   }
 
   Future<void> _initializeNotifications() async {

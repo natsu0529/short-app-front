@@ -133,6 +133,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  void updateUser(User user) {
+    state = state.copyWith(user: user);
+  }
+
   void clearLevelUpEvent() {
     state = state.copyWith(clearLevelUpEvent: true);
   }

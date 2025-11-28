@@ -106,7 +106,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 userBio: bioController.text,
                 userUrl: urlController.text,
               );
-          await ref.read(authProvider.notifier).refreshUser();
+          // updateProfile の結果を authProvider に直接反映
+          final updatedUser = ref.read(profileProvider).user;
+          if (updatedUser != null) {
+            ref.read(authProvider.notifier).updateUser(updatedUser);
+          }
           if (context.mounted) {
             Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(
