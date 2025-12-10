@@ -14,12 +14,12 @@ class ApiConfig {
       dotenv.env['PROD_API_URL'] ?? 'https://your-api.example.com';
   static String get _pcIp => dotenv.env['LOCAL_PC_IP'] ?? '192.168.1.15';
 
-  static bool get isProduction => _env == 'production';
+  static bool get isProduction => _env == 'production' || kReleaseMode;
 
   /// Resolves the API base URL depending on the environment and platform.
   static Future<String> resolveBaseUrl() async {
     // Production environment - always use production URL
-    if (isProduction) {
+    if (isProduction || kReleaseMode) {
       return _prodApiUrl;
     }
 

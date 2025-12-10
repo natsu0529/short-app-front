@@ -251,6 +251,48 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen>
   Widget _buildPostList(TimelineState state, int tabIndex) {
     final tab = TimelineTab.values[tabIndex];
 
+    // エラーがある場合は表示
+    if (state.error != null && state.currentTab == tab && !state.isLoading) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.black54),
+              const SizedBox(height: 16),
+              const Text(
+                'Error loading timeline',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                state.error!,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref.read(timelineProvider.notifier).loadTimeline(tab: tab, refresh: true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     // 現在のタブと違う場合はローディング表示
     if (state.isLoading && state.currentTab == tab) {
       return const Center(

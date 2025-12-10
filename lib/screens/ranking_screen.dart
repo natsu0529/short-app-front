@@ -152,49 +152,88 @@ class _RankingScreenState extends ConsumerState<RankingScreen>
               ? const Center(
                   child: CircularProgressIndicator(color: Colors.black),
                 )
-              : TabBarView(
-                  controller: _tabController,
-                  children: [
-                    // Popular Posts
-                    _PostRankingList(
-                      posts: state.popularPosts,
-                      onTap: _openPostAuthorProfile,
-                    ),
-                    // Total Likes
-                    _UserRankingList(
-                      users: state.totalLikesUsers,
-                      metricBuilder: (user) => _formatMetric(
-                        context,
-                        'likes',
-                        user.stats?.totalLikesReceived ?? 0,
+              : state.error != null
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.error_outline, size: 48, color: Colors.black54),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Error loading rankings',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              state.error!,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.black54,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () => ref.read(rankingProvider.notifier).loadAllRankings(),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
                       ),
-                      onTap: _openUserProfile,
-                      scrollController: _likesScrollController,
+                    )
+                  : TabBarView(
+                      controller: _tabController,
+                      children: [
+                        // Popular Posts
+                        _PostRankingList(
+                          posts: state.popularPosts,
+                          onTap: _openPostAuthorProfile,
+                        ),
+                        // Total Likes
+                        _UserRankingList(
+                          users: state.totalLikesUsers,
+                          metricBuilder: (user) => _formatMetric(
+                            context,
+                            'likes',
+                            user.stats?.totalLikesReceived ?? 0,
+                          ),
+                          onTap: _openUserProfile,
+                          scrollController: _likesScrollController,
+                        ),
+                        // Level
+                        _UserRankingList(
+                          users: state.levelUsers,
+                          metricBuilder: (user) => _formatMetric(
+                            context,
+                            'level',
+                            user.userLevel,
+                          ),
+                          onTap: _openUserProfile,
+                          scrollController: _levelScrollController,
+                        ),
+                        // Followers
+                        _UserRankingList(
+                          users: state.followersUsers,
+                          metricBuilder: (user) => _formatMetric(
+                            context,
+                            'followers',
+                            user.stats?.followerCount ?? 0,
+                          ),
+                          onTap: _openUserProfile,
+                          scrollController: _followersScrollController,
+                        ),
+                      ],
                     ),
-                    // Level
-                    _UserRankingList(
-                      users: state.levelUsers,
-                      metricBuilder: (user) => _formatMetric(
-                        context,
-                        'level',
-                        user.userLevel,
-                      ),
-                      onTap: _openUserProfile,
-                      scrollController: _levelScrollController,
-                    ),
-                    // Followers
-                    _UserRankingList(
-                      users: state.followersUsers,
-                      metricBuilder: (user) => _formatMetric(
-                        context,
-                        'followers',
-                        user.stats?.followerCount ?? 0,
-                      ),
-                      onTap: _openUserProfile,
-                      scrollController: _followersScrollController,
-                    ),
-                  ],
-                ),
         ),
       ],
     );

@@ -22,6 +22,12 @@ class ApiClient {
   Future<void> initialize() async {
     _baseUrl = await ApiConfig.resolveBaseUrl();
 
+    if (kDebugMode) {
+      print('=== API Client Initialization ===');
+      print('Base URL: $_baseUrl');
+      print('Environment: ${ApiConfig.isProduction ? "Production" : "Development"}');
+    }
+
     // 保存されたトークンを読み込む
     _authToken = await _secureStorage.read(key: _tokenKey);
     if (kDebugMode && _authToken != null) {
@@ -59,8 +65,13 @@ class ApiClient {
         },
         onError: (error, handler) {
           if (kDebugMode) {
-            print('API Error: ${error.message}');
-            print('Response: ${error.response?.data}');
+            print('=== API Error ===');
+            print('URL: ${error.requestOptions.uri}');
+            print('Method: ${error.requestOptions.method}');
+            print('Status Code: ${error.response?.statusCode}');
+            print('Error Type: ${error.type}');
+            print('Error Message: ${error.message}');
+            print('Response Data: ${error.response?.data}');
           }
           return handler.next(error);
         },
