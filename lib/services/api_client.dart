@@ -73,6 +73,16 @@ class ApiClient {
             print('Error Message: ${error.message}');
             print('Response Data: ${error.response?.data}');
           }
+
+          // 401エラーの場合、認証トークンをクリア
+          if (error.response?.statusCode == 401) {
+            if (kDebugMode) {
+              print('401 Unauthorized - Clearing auth token');
+            }
+            _authToken = null;
+            _secureStorage.delete(key: _tokenKey);
+          }
+
           return handler.next(error);
         },
       ),
