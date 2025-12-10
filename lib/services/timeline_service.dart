@@ -14,14 +14,14 @@ class TimelineService {
 
   Future<PaginatedResponse<Post>> getTimeline({
     TimelineTab tab = TimelineTab.latest,
-    int page = 1,
+    String? cursor,
     int pageSize = 20,
   }) async {
     final response = await _client.get<Map<String, dynamic>>(
       '/api/timeline/',
       queryParameters: {
         'tab': tab.name,
-        'page': page,
+        if (cursor != null) 'cursor': cursor,
         'page_size': pageSize,
       },
     );

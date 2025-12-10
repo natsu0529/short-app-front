@@ -11,9 +11,12 @@ class ProfileState {
   final List<User> followers;
   final bool isLoading;
   final bool isLoadingLikedPosts;
+  final bool isLoadingMoreLikedPosts;
   final String? error;
   final bool? isFollowing;
   final int? followId;
+  final String? likedNextCursor;
+  final bool hasMoreLikedPosts;
 
   const ProfileState({
     this.user,
@@ -22,9 +25,12 @@ class ProfileState {
     this.followers = const [],
     this.isLoading = false,
     this.isLoadingLikedPosts = false,
+    this.isLoadingMoreLikedPosts = false,
     this.error,
     this.isFollowing,
     this.followId,
+    this.likedNextCursor,
+    this.hasMoreLikedPosts = true,
   });
 
   ProfileState copyWith({
@@ -34,12 +40,16 @@ class ProfileState {
     List<User>? followers,
     bool? isLoading,
     bool? isLoadingLikedPosts,
+    bool? isLoadingMoreLikedPosts,
     String? error,
     bool? isFollowing,
     int? followId,
+    String? likedNextCursor,
+    bool? hasMoreLikedPosts,
     bool clearError = false,
     bool clearUser = false,
     bool clearFollowId = false,
+    bool clearLikedPagination = false,
   }) {
     return ProfileState(
       user: clearUser ? null : (user ?? this.user),
@@ -48,9 +58,15 @@ class ProfileState {
       followers: followers ?? this.followers,
       isLoading: isLoading ?? this.isLoading,
       isLoadingLikedPosts: isLoadingLikedPosts ?? this.isLoadingLikedPosts,
+      isLoadingMoreLikedPosts:
+          isLoadingMoreLikedPosts ?? this.isLoadingMoreLikedPosts,
       error: clearError ? null : (error ?? this.error),
       isFollowing: isFollowing ?? this.isFollowing,
       followId: clearFollowId ? null : (followId ?? this.followId),
+      likedNextCursor:
+          clearLikedPagination ? null : (likedNextCursor ?? this.likedNextCursor),
+      hasMoreLikedPosts:
+          clearLikedPagination ? true : (hasMoreLikedPosts ?? this.hasMoreLikedPosts),
     );
   }
 }
@@ -80,7 +96,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       }
 
       // Load liked posts
-      await loadLikedPosts(userId);
+      await loadLikedPosts(userId, refresh: true);
 
       // Load following/followers
       await loadFollowData(userId);
@@ -92,17 +108,37 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     }
   }
 
-  Future<void> loadLikedPosts(int userId) async {
-    state = state.copyWith(isLoadingLikedPosts: true);
-    try {
-      final response = await _likeService.getUserLikedPosts(userId);
+  Future<void> loadLikedPosts(int userId,
+      {bool loadMore = false, bool refresh = false}) async {
+    if (loadMore) {
+      if (state.isLoadingMoreLikedPosts || !state.hasMoreLikedPosts) return;
+      state = state.copyWith(isLoadingMoreLikedPosts: true);
+    } else {
       state = state.copyWith(
-        likedPosts: response.results,
-        isLoadingLikedPosts: false,
+        isLoadingLikedPosts: true,
+        clearError: true,
+        clearLikedPagination: refresh,
+        likedPosts: refresh ? [] : null,
+      );
+    }
+    try {
+      final response = await _likeService.getUserLikedPosts(
+        userId,
+        cursor: loadMore ? state.likedNextCursor : null,
+      );
+      state = state.copyWith(
+        likedPosts: loadMore
+            ? [...state.likedPosts, ...response.results]
+            : response.results,
+        likedNextCursor: response.nextCursor,
+        hasMoreLikedPosts: response.hasNext,
+        isLoadingLikedPosts: loadMore ? state.isLoadingLikedPosts : false,
+        isLoadingMoreLikedPosts: loadMore ? false : state.isLoadingMoreLikedPosts,
       );
     } catch (e) {
       state = state.copyWith(
         isLoadingLikedPosts: false,
+        isLoadingMoreLikedPosts: false,
         error: e.toString(),
       );
     }
@@ -115,8 +151,8 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
         _followService.getFollowers(userId),
       ]);
       state = state.copyWith(
-        following: results[0],
-        followers: results[1],
+        following: results[0].results,
+        followers: results[1].results,
       );
     } catch (e) {
       state = state.copyWith(error: e.toString());

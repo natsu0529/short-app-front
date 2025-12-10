@@ -9,7 +9,7 @@ class LikeService {
   Future<PaginatedResponse<Like>> getLikes({
     int? userId,
     int? postId,
-    int page = 1,
+    String? cursor,
     int pageSize = 20,
   }) async {
     final response = await _client.get<Map<String, dynamic>>(
@@ -17,7 +17,7 @@ class LikeService {
       queryParameters: {
         if (userId != null) 'user_id': userId,
         if (postId != null) 'post_id': postId,
-        'page': page,
+        if (cursor != null) 'cursor': cursor,
         'page_size': pageSize,
       },
     );
@@ -40,13 +40,13 @@ class LikeService {
 
   Future<PaginatedResponse<Post>> getUserLikedPosts(
     int userId, {
-    int page = 1,
+    String? cursor,
     int pageSize = 20,
   }) async {
     final response = await _client.get<Map<String, dynamic>>(
       '/api/users/$userId/liked-posts/',
       queryParameters: {
-        'page': page,
+        if (cursor != null) 'cursor': cursor,
         'page_size': pageSize,
       },
     );

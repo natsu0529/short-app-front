@@ -265,33 +265,45 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen>
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: () => ref
-          .read(timelineProvider.notifier)
-          .loadTimeline(tab: tab, refresh: true),
-      color: Colors.black,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        itemCount: state.posts.length + (state.isLoadingMore ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index == state.posts.length) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: CircularProgressIndicator(color: Colors.black),
-              ),
-            );
-          }
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        if (notification.metrics.pixels >=
+                notification.metrics.maxScrollExtent - 320 &&
+            state.hasMore &&
+            !state.isLoadingMore &&
+            state.currentTab == tab) {
+          ref.read(timelineProvider.notifier).loadMore();
+        }
+        return false;
+      },
+      child: RefreshIndicator(
+        onRefresh: () => ref
+            .read(timelineProvider.notifier)
+            .loadTimeline(tab: tab, refresh: true),
+        color: Colors.black,
+        child: ListView.separated(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          itemCount: state.posts.length + (state.isLoadingMore ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (index == state.posts.length) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: CircularProgressIndicator(color: Colors.black),
+                ),
+              );
+            }
 
-          final post = state.posts[index];
-          return PostCard(
-            post: post,
-            onTap: () => _openProfileFromPost(post),
-            onLikeTap: () => _handleLike(post),
-            source: _getSourceLabel(tabIndex),
-          );
-        },
-        separatorBuilder: (context, index) => const SizedBox(height: 12),
+            final post = state.posts[index];
+            return PostCard(
+              post: post,
+              onTap: () => _openProfileFromPost(post),
+              onLikeTap: () => _handleLike(post),
+              source: _getSourceLabel(tabIndex),
+            );
+          },
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+        ),
       ),
     );
   }

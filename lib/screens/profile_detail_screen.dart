@@ -16,9 +16,12 @@ class ProfileDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final currentUser = ref.read(currentUserProvider);
       ref.read(profileProvider.notifier).loadProfile(
@@ -26,6 +29,13 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
             currentUserId: currentUser?.userId,
           );
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void _handleFollow() {
@@ -64,6 +74,22 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
     }
   }
 
+  void _onScroll() {
+    final state = ref.read(profileProvider);
+    if (!state.hasMoreLikedPosts ||
+        state.isLoadingMoreLikedPosts ||
+        state.likedNextCursor == null) {
+      return;
+    }
+    if (!_scrollController.hasClients) return;
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 320) {
+      ref
+          .read(profileProvider.notifier)
+          .loadLikedPosts(widget.userId, loadMore: true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(profileProvider);
@@ -82,14 +108,15 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
         elevation: 0,
       ),
       body: state.isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.black),
-            )
+              ? const Center(
+                  child: CircularProgressIndicator(color: Colors.black),
+                )
           : state.user == null
               ? Center(
                   child: Text(l10n.error),
                 )
               : SingleChildScrollView(
+                  controller: _scrollController,
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,8 +158,22 @@ class _ProfileDetailScreenState extends ConsumerState<ProfileDetailScreen> {
                         ListView.separated(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          itemCount: state.likedPosts.length,
+                          itemCount: state.likedPosts.length +
+                              (state.isLoadingMoreLikedPosts ? 1 : 0),
                           itemBuilder: (context, index) {
+                            if (index == state.likedPosts.length) {
+                              return const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 12),
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                        color: Colors.black),
+                                  ),
+                                ),
+                              );
+                            }
                             final post = state.likedPosts[index];
                             return PostCard(
                               post: post,

@@ -8,7 +8,7 @@ class SearchService {
 
   Future<PaginatedResponse<User>> searchUsers(
     String query, {
-    int page = 1,
+    String? cursor,
     int pageSize = 20,
   }) async {
     if (query.isEmpty) {
@@ -18,7 +18,7 @@ class SearchService {
       '/api/search/users/',
       queryParameters: {
         'q': query,
-        'page': page,
+        if (cursor != null) 'cursor': cursor,
         'page_size': pageSize,
       },
     );
@@ -27,7 +27,7 @@ class SearchService {
 
   Future<PaginatedResponse<Post>> searchPosts(
     String query, {
-    int page = 1,
+    String? cursor,
     int pageSize = 20,
   }) async {
     if (query.isEmpty) {
@@ -37,7 +37,7 @@ class SearchService {
       '/api/search/posts/',
       queryParameters: {
         'q': query,
-        'page': page,
+        if (cursor != null) 'cursor': cursor,
         'page_size': pageSize,
       },
     );

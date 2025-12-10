@@ -6,10 +6,10 @@ class FollowService {
 
   FollowService(this._client);
 
-  Future<List<Follow>> getFollows({
+  Future<PaginatedResponse<Follow>> getFollows({
     int? userId,
     int? aimUserId,
-    int page = 1,
+    String? cursor,
     int pageSize = 20,
   }) async {
     final response = await _client.get<dynamic>(
@@ -17,7 +17,7 @@ class FollowService {
       queryParameters: {
         if (userId != null) 'user_id': userId,
         if (aimUserId != null) 'aim_user_id': aimUserId,
-        'page': page,
+        if (cursor != null) 'cursor': cursor,
         'page_size': pageSize,
       },
     );
@@ -25,15 +25,19 @@ class FollowService {
 
     // Handle both list and paginated response formats
     if (response.data is List) {
-      return (response.data as List)
+      final results = (response.data as List)
           .map((item) => Follow.fromJson(item as Map<String, dynamic>))
           .toList();
+      return PaginatedResponse(
+        count: results.length,
+        results: results,
+      );
     } else if (response.data is Map<String, dynamic>) {
       final paginatedResponse =
           PaginatedResponse.fromJson(response.data!, Follow.fromJson);
-      return paginatedResponse.results;
+      return paginatedResponse;
     }
-    return [];
+    return const PaginatedResponse(count: 0, results: []);
   }
 
   Future<Follow> createFollow(int aimUserId) async {
@@ -50,23 +54,59 @@ class FollowService {
     await _client.delete('/api/follows/$followId/');
   }
 
-  Future<List<User>> getFollowing(int userId, {int page = 1, int pageSize = 100}) async {
-    final follows = await getFollows(userId: userId, page: page, pageSize: pageSize);
-    return follows.map((f) => f.aimUser).toList();
+  Future<PaginatedResponse<User>> getFollowing(
+    int userId, {
+    String? cursor,
+    int pageSize = 100,
+  }) async {
+    final follows = await getFollows(
+      userId: userId,
+      cursor: cursor,
+      pageSize: pageSize,
+    );
+    return PaginatedResponse(
+      count: follows.count,
+      next: follows.next,
+      previous: follows.previous,
+      results: follows.results.map((f) => f.aimUser).toList(),
+      currentCursor: follows.currentCursor,
+    );
   }
 
-  Future<List<User>> getFollowers(int userId, {int page = 1, int pageSize = 100}) async {
-    final follows = await getFollows(aimUserId: userId, page: page, pageSize: pageSize);
-    return follows.map((f) => f.user).toList();
+  Future<PaginatedResponse<User>> getFollowers(
+    int userId, {
+    String? cursor,
+    int pageSize = 100,
+  }) async {
+    final follows = await getFollows(
+      aimUserId: userId,
+      cursor: cursor,
+      pageSize: pageSize,
+    );
+    return PaginatedResponse(
+      count: follows.count,
+      next: follows.next,
+      previous: follows.previous,
+      results: follows.results.map((f) => f.user).toList(),
+      currentCursor: follows.currentCursor,
+    );
   }
 
   Future<bool> isFollowing(int userId, int targetUserId) async {
-    final follows = await getFollows(userId: userId, aimUserId: targetUserId, pageSize: 1);
-    return follows.isNotEmpty;
+    final follows = await getFollows(
+      userId: userId,
+      aimUserId: targetUserId,
+      pageSize: 1,
+    );
+    return follows.results.isNotEmpty;
   }
 
   Future<Follow?> getFollowRelation(int userId, int targetUserId) async {
-    final follows = await getFollows(userId: userId, aimUserId: targetUserId, pageSize: 1);
-    return follows.isNotEmpty ? follows.first : null;
+    final follows = await getFollows(
+      userId: userId,
+      aimUserId: targetUserId,
+      pageSize: 1,
+    );
+    return follows.results.isNotEmpty ? follows.results.first : null;
   }
 }

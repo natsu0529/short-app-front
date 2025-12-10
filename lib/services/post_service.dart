@@ -8,14 +8,14 @@ class PostService {
 
   Future<PaginatedResponse<Post>> getPosts({
     int? userId,
-    int page = 1,
+    String? cursor,
     int pageSize = 20,
   }) async {
     final response = await _client.get<Map<String, dynamic>>(
       '/api/posts/',
       queryParameters: {
         if (userId != null) 'user_id': userId,
-        'page': page,
+        if (cursor != null) 'cursor': cursor,
         'page_size': pageSize,
       },
     );

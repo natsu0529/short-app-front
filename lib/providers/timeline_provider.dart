@@ -8,8 +8,8 @@ class TimelineState {
   final bool isLoading;
   final bool isLoadingMore;
   final String? error;
-  final int currentPage;
   final bool hasMore;
+  final String? nextCursor;
   final TimelineTab currentTab;
 
   const TimelineState({
@@ -17,8 +17,8 @@ class TimelineState {
     this.isLoading = false,
     this.isLoadingMore = false,
     this.error,
-    this.currentPage = 1,
     this.hasMore = true,
+    this.nextCursor,
     this.currentTab = TimelineTab.latest,
   });
 
@@ -27,8 +27,8 @@ class TimelineState {
     bool? isLoading,
     bool? isLoadingMore,
     String? error,
-    int? currentPage,
     bool? hasMore,
+    String? nextCursor,
     TimelineTab? currentTab,
     bool clearError = false,
   }) {
@@ -37,8 +37,8 @@ class TimelineState {
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       error: clearError ? null : (error ?? this.error),
-      currentPage: currentPage ?? this.currentPage,
       hasMore: hasMore ?? this.hasMore,
+      nextCursor: nextCursor ?? this.nextCursor,
       currentTab: currentTab ?? this.currentTab,
     );
   }
@@ -53,26 +53,27 @@ class TimelineNotifier extends StateNotifier<TimelineState> {
 
   Future<void> loadTimeline({TimelineTab? tab, bool refresh = false}) async {
     final targetTab = tab ?? state.currentTab;
+    final shouldReset = refresh || tab != state.currentTab || state.posts.isEmpty;
 
-    if (refresh || tab != state.currentTab) {
+    if (shouldReset) {
       state = state.copyWith(
         isLoading: true,
         clearError: true,
         currentTab: targetTab,
-        currentPage: 1,
+        hasMore: true,
+        nextCursor: null,
       );
     }
 
     try {
       final response = await _timelineService.getTimeline(
         tab: targetTab,
-        page: 1,
       );
       state = state.copyWith(
         posts: response.results,
         isLoading: false,
-        currentPage: 1,
         hasMore: response.hasNext,
+        nextCursor: response.nextCursor,
       );
     } catch (e) {
       state = state.copyWith(
@@ -83,21 +84,22 @@ class TimelineNotifier extends StateNotifier<TimelineState> {
   }
 
   Future<void> loadMore() async {
-    if (state.isLoadingMore || !state.hasMore) return;
+    if (state.isLoadingMore || !state.hasMore || state.nextCursor == null) {
+      return;
+    }
 
     state = state.copyWith(isLoadingMore: true);
 
     try {
-      final nextPage = state.currentPage + 1;
       final response = await _timelineService.getTimeline(
         tab: state.currentTab,
-        page: nextPage,
+        cursor: state.nextCursor,
       );
       state = state.copyWith(
         posts: [...state.posts, ...response.results],
         isLoadingMore: false,
-        currentPage: nextPage,
         hasMore: response.hasNext,
+        nextCursor: response.nextCursor,
       );
     } catch (e) {
       state = state.copyWith(

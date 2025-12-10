@@ -21,6 +21,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+    _likedScrollController.addListener(_onLikedScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadProfile();
     });
@@ -28,6 +29,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   void dispose() {
+    _likedScrollController.removeListener(_onLikedScroll);
     _likedScrollController.dispose();
     super.dispose();
   }
@@ -45,6 +47,26 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeOut,
     );
+  }
+
+  void _onLikedScroll() {
+    final state = ref.read(profileProvider);
+    if (!state.hasMoreLikedPosts ||
+        state.isLoadingMoreLikedPosts ||
+        state.likedNextCursor == null) {
+      return;
+    }
+    if (!_likedScrollController.hasClients) return;
+
+    final position = _likedScrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 320) {
+      final currentUser = ref.read(currentUserProvider);
+      if (currentUser != null) {
+        ref
+            .read(profileProvider.notifier)
+            .loadLikedPosts(currentUser.userId, loadMore: true);
+      }
+    }
   }
 
   void _openProfileFromPost(Post post) {
@@ -177,6 +199,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             child: _LikedPostsSection(
               posts: profileState.likedPosts,
               isLoading: profileState.isLoadingLikedPosts,
+              isLoadingMore: profileState.isLoadingMoreLikedPosts,
               controller: _likedScrollController,
               onHeaderTap: _scrollLikedToTop,
               onPostTap: _openProfileFromPost,
@@ -481,6 +504,7 @@ class _LikedPostsSection extends StatelessWidget {
   const _LikedPostsSection({
     required this.posts,
     required this.isLoading,
+    required this.isLoadingMore,
     required this.controller,
     required this.onHeaderTap,
     this.onPostTap,
@@ -488,6 +512,7 @@ class _LikedPostsSection extends StatelessWidget {
 
   final List<Post> posts;
   final bool isLoading;
+  final bool isLoadingMore;
   final ScrollController controller;
   final VoidCallback onHeaderTap;
   final ValueChanged<Post>? onPostTap;
@@ -525,16 +550,31 @@ class _LikedPostsSection extends StatelessWidget {
                   ? Center(child: Text(l10n.noPosts))
                   : ListView.separated(
                       controller: controller,
-                      itemBuilder: (context, index) => PostCard(
-                        post: posts[index],
-                        onTap: onPostTap != null
-                            ? () => onPostTap!(posts[index])
-                            : null,
-                        source: 'Liked',
-                      ),
+                      itemBuilder: (context, index) {
+                        if (index == posts.length) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child:
+                                    CircularProgressIndicator(color: Colors.black),
+                              ),
+                            ),
+                          );
+                        }
+                        return PostCard(
+                          post: posts[index],
+                          onTap: onPostTap != null
+                              ? () => onPostTap!(posts[index])
+                              : null,
+                          source: 'Liked',
+                        );
+                      },
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: 10),
-                      itemCount: posts.length,
+                      itemCount: posts.length + (isLoadingMore ? 1 : 0),
                     ),
         ),
       ],

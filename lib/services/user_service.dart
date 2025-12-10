@@ -7,13 +7,13 @@ class UserService {
   UserService(this._client);
 
   Future<PaginatedResponse<User>> getUsers({
-    int page = 1,
+    String? cursor,
     int pageSize = 20,
   }) async {
     final response = await _client.get<Map<String, dynamic>>(
       '/api/users/',
       queryParameters: {
-        'page': page,
+        if (cursor != null) 'cursor': cursor,
         'page_size': pageSize,
       },
     );
