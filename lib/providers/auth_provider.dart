@@ -76,6 +76,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<void> signInWithApple() async {
+    print('AuthNotifier: signInWithApple called');
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final user = await _authService.signInWithApple();
+      print('AuthNotifier: signInWithApple success, user: $user');
+      state = state.copyWith(user: user, isLoading: false);
+    } catch (e) {
+      print('AuthNotifier: signInWithApple error: $e');
+      state = state.copyWith(isLoading: false, error: e.toString());
+    }
+  }
+
   Future<void> signInWithEmailPassword(String email, String password) async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {

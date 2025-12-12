@@ -1,4 +1,5 @@
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:flutter/foundation.dart';
 import '../models/models.dart';
 import 'api_client.dart';
@@ -61,6 +62,51 @@ class AuthService {
     } catch (e, stackTrace) {
       if (kDebugMode) {
         print('Error signing in with Google: $e');
+        print('Stack trace: $stackTrace');
+      }
+      rethrow;
+    }
+  }
+
+  Future<User?> signInWithApple() async {
+    try {
+      if (kDebugMode) {
+        print('Starting Apple Sign-In...');
+      }
+
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      if (kDebugMode) {
+        print('Apple Sign-In result: ${credential.userIdentifier}');
+        print('Identity Token: ${credential.identityToken != null ? "exists" : "NULL"}');
+        print('Authorization Code: ${credential.authorizationCode != null ? "exists" : "NULL"}');
+      }
+
+      if (credential.identityToken == null) {
+        if (kDebugMode) print('Identity Token is null, returning null');
+        return null;
+      }
+
+      // Send Apple ID token to backend for verification
+      final apiUser = await _authenticateWithAppleBackend(
+        identityToken: credential.identityToken!,
+        authorizationCode: credential.authorizationCode,
+        userId: credential.userIdentifier ?? '',
+        email: credential.email,
+        familyName: credential.familyName,
+        givenName: credential.givenName,
+      );
+
+      _currentUser = apiUser;
+      return apiUser;
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print('Error signing in with Apple: $e');
         print('Stack trace: $stackTrace');
       }
       rethrow;
@@ -156,6 +202,55 @@ class AuthService {
     } catch (e) {
       if (kDebugMode) {
         print('Error authenticating with backend: $e');
+      }
+      rethrow;
+    }
+  }
+
+  Future<User?> _authenticateWithAppleBackend({
+    required String identityToken,
+    String? authorizationCode,
+    required String userId,
+    String? email,
+    String? familyName,
+    String? givenName,
+  }) async {
+    try {
+      if (kDebugMode) {
+        print('Authenticating with Apple backend...');
+        print('User ID: $userId');
+        print('Email: $email');
+        print('Given Name: $givenName');
+        print('Family Name: $familyName');
+      }
+
+      // Send Apple ID token to backend
+      final response = await _apiClient.post<Map<String, dynamic>>(
+        '/api/auth/apple/',
+        data: {
+          'identity_token': identityToken,
+          if (authorizationCode != null) 'authorization_code': authorizationCode,
+          'user_id': userId,
+          if (email != null) 'email': email,
+          if (givenName != null) 'given_name': givenName,
+          if (familyName != null) 'family_name': familyName,
+        },
+      );
+
+      if (kDebugMode) {
+        print('Backend response: ${response.data}');
+      }
+
+      final token = response.data!['token'] as String;
+      await _apiClient.setAuthToken(token);
+
+      final userResponse = await _apiClient.get<Map<String, dynamic>>(
+        '/api/users/me/',
+      );
+      return User.fromJson(userResponse.data!);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error authenticating with Apple backend: $e');
       }
       rethrow;
     }

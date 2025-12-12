@@ -22,6 +22,20 @@ class LoginScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _handleAppleLogin(BuildContext context, WidgetRef ref) async {
+    await ref.read(authProvider.notifier).signInWithApple();
+
+    final error = ref.read(authProvider).error;
+    if (error != null && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
@@ -60,6 +74,39 @@ class LoginScreen extends ConsumerWidget {
             textAlign: TextAlign.center,
           ),
           const Spacer(),
+          // Apple sign in button
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              side: const BorderSide(color: Colors.black, width: 1.2),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+            onPressed:
+                authState.isLoading ? null : () => _handleAppleLogin(context, ref),
+            icon: authState.isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Icon(Icons.apple, size: 24),
+            label: const Text(
+              'Sign in with Apple',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
           // Google sign in button
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
