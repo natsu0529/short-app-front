@@ -122,6 +122,7 @@
   "dontHaveAccount": "アカウントをお持ちでない方",
   "orContinueWith": "または",
   "signInWithGoogle": "Googleでログイン",
+  "signInWithApple": "Appleでログイン",
   "unfollow": "フォロー解除",
   "unfollowed": "フォロー解除しました",
   "loading": "読み込み中...",

@@ -204,6 +204,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get signInWithGoogle => '使用Google登录';
 
   @override
+  String get signInWithApple => 'Appleでログイン';
+
+  @override
   String get unfollow => '取消关注';
 
   @override

@@ -204,6 +204,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get signInWithGoogle => 'Se connecter avec Google';
 
   @override
+  String get signInWithApple => 'Appleでログイン';
+
+  @override
   String get unfollow => 'Se désabonner';
 
   @override

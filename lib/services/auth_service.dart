@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:flutter/foundation.dart';
@@ -74,11 +75,23 @@ class AuthService {
         print('Starting Apple Sign-In...');
       }
 
+      // Apple Sign-in is primarily for iOS
+      // For Android, we would need to configure webAuthenticationOptions
+      // with a Service ID and redirect URI from Apple Developer Console
       final credential = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
         ],
+        // Add webAuthenticationOptions for Android if needed
+        webAuthenticationOptions: Platform.isAndroid
+            ? WebAuthenticationOptions(
+                clientId: 'com.suzukioff.shortapp',
+                redirectUri: Uri.parse(
+                  'https://short-app-service-989459986996.asia-northeast1.run.app/api/auth/apple/callback',
+                ),
+              )
+            : null,
       );
 
       if (kDebugMode) {

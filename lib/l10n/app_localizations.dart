@@ -460,6 +460,12 @@ abstract class AppLocalizations {
   /// **'Googleでログイン'**
   String get signInWithGoogle;
 
+  /// No description provided for @signInWithApple.
+  ///
+  /// In ja, this message translates to:
+  /// **'Appleでログイン'**
+  String get signInWithApple;
+
   /// No description provided for @unfollow.
   ///
   /// In ja, this message translates to:

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
@@ -74,39 +75,41 @@ class LoginScreen extends ConsumerWidget {
             textAlign: TextAlign.center,
           ),
           const Spacer(),
-          // Apple sign in button
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-              side: const BorderSide(color: Colors.black, width: 1.2),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          // Apple sign in button (iOS only - required by App Store Guideline 4.8)
+          if (Platform.isIOS) ...[
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                side: const BorderSide(color: Colors.black, width: 1.2),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
               ),
-              elevation: 0,
-            ),
-            onPressed:
-                authState.isLoading ? null : () => _handleAppleLogin(context, ref),
-            icon: authState.isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Icon(Icons.apple, size: 24),
-            label: const Text(
-              'Sign in with Apple',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+              onPressed:
+                  authState.isLoading ? null : () => _handleAppleLogin(context, ref),
+              icon: authState.isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.apple, size: 24),
+              label: Text(
+                l10n.signInWithApple,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
+            const SizedBox(height: 12),
+          ],
           // Google sign in button
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(

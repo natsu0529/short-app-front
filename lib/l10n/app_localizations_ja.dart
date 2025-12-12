@@ -204,6 +204,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get signInWithGoogle => 'Googleでログイン';
 
   @override
+  String get signInWithApple => 'Appleでログイン';
+
+  @override
   String get unfollow => 'フォロー解除';
 
   @override
