@@ -10,7 +10,7 @@ class AuthService {
   User? _currentUser;
 
   // Web/Backend Client ID from Google Cloud Console
-  static const String _webClientId = '989459986996-npnc77tg2hnampsihsi2nurmjqtcjkia.apps.googleusercontent.com';
+  static const String _webClientId = '989459986996-l5l81alrucehajcilbskf6ailsecm90q.apps.googleusercontent.com';
 
   AuthService({
     GoogleSignIn? googleSignIn,
